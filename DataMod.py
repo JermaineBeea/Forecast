@@ -3,8 +3,6 @@ import numpy as np
 import pandas as pd
 import random 
 
-data = np.random.uniform(1, 10, size = 10)
-
 def linearise (data, data_type = float):
     """
     Converts a given ordered set of data into a linear form.
@@ -32,11 +30,11 @@ def linearise (data, data_type = float):
 
   """
     # Convert data to a numpy array if it is not already
-    data = np.asarray(data)
+    data = np.array(data)
     
     # Sort data from lowest to highest
-    min_data = data[0]
-    max_data = data[-1]
+    min_data = data.min()
+    max_data = data.max()
 
     # Calculate differences and the mean absolute difference
     diff_ = np.diff(data)
@@ -47,7 +45,7 @@ def linearise (data, data_type = float):
         raise ValueError("The data does not have sufficient variation to compute a meaningful linear form.")
 
     # Generate the linear data
-    linear_data = np.arange(min_data, max_data + mean_abs_diff, mean_abs_diff)
+    linear_data = np.arange(min_data, max_data, mean_abs_diff)
 
     # Convert to the specified data type
     linear_data = linear_data.astype(data_type)
@@ -85,7 +83,6 @@ def deviation (set_1, set_2, absolute = False):
       `Linearization <https://en.wikipedia.org/wiki/Linearization>`_
 
     """
-
     set_1 = np.array(set_1)
     set_2 = np.array(set_2)
 
@@ -93,19 +90,25 @@ def deviation (set_1, set_2, absolute = False):
     set_2 = set_2.reshape(1, -1)
 
     # Calculate differences
-    deviation_set = np.abs(set_1 - set_2) if absolute else set_1 - set_2
+    deviation_set = np.abs(set_1 - set_2) if absolute  else set_1 - set_2
 
     return deviation_set
 
+def meanTend (data):
+  data = np.array(data)
+  deviat_data = deviation(data,data, True)
+  tend_data = np.apply_along_axis(np.sum, axis = 0, arr = deviat_data)
+  index_tend = np.where(tend_data == tend_data.min())
+  tendency = data[index_tend].mean()
+  return tendency
+
 # Test Functions
-run_main = False
-if __name__ == '__main__' and run_main is True:
+if __name__ == '__main__':
 
-  val = deviation(1 , [1,2], True)
-  print(val)
+  data = 1, 2, 4, 5, 6, 7
+  tend = meanTend(data)
+
+  print(tend)
 
 
-# Tendency of data set
-
-data = np.random.uniform(1, 20, size = 10)
 

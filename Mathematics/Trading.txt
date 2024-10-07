@@ -24,7 +24,7 @@ PROFIT OF TRADE
 	-Return = ARab'(Rba")
 	 
 3.The profit of trade is the difference between the return and the initial investment.
-	-Profit = A[(Rab'(Rba") - 1]
+	-Profit = A[Rab'(Rba") - 1]
 	-Expressed in terms of Rab"
 	-Profit = A[Rab'/(Rab" + Spread) - 1]
 
