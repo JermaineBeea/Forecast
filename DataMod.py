@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-import random 
 
 def linearise (data, data_type = float):
     """
@@ -96,7 +93,8 @@ def deviation (set_1, set_2, absolute = False):
 
 def meanTend (data):
   data = np.array(data)
-  deviat_data = deviation(data,data, True)
+  linear_data = linearise(data)
+  deviat_data = deviation(linear_data,data, True)
   tend_data = np.apply_along_axis(np.sum, axis = 0, arr = deviat_data)
   index_tend = np.where(tend_data == tend_data.min())
   tendency = data[index_tend].mean()
@@ -105,10 +103,9 @@ def meanTend (data):
 # Test Functions
 if __name__ == '__main__':
 
-  data = 1, 2, 4, 5, 6, 7
+  data = 1, 2, 3, 4, 5 , 6 , 7, 9, 11, 13, 15, 18, 21
   tend = meanTend(data)
 
   print(tend)
-
 
 
