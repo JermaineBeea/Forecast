@@ -27,22 +27,36 @@ def expectation (data, from_x = None , iterations = None):
     change_excpection = iterations*(prob_pos*tend_pos + prob_neg*tend_neg)
     expectation_data = from_x + change_excpection
     max_expectation = from_x + iterations*tend_pos
-    min_expectation = from_x - iterations*tend_neg
+    min_expectation = from_x + iterations*tend_neg
 
-    return expectation_data, max_expectation, min_expectation
+    return expectation_data, min_expectation, max_expectation
 
 path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/EURAUD.ifx.csv'
 data = pd.read_csv(path, sep = '\t')['<CLOSE>'].dropna()
+
 data_size = data.size
 data = data.to_list()
 
 indx_start = data_size//4
 indx_end = data_size
+forecast, min_cast, max_cast = expectation(data)
 
 
 # Plot Data
-data_plotted = data[indx_start: indx_end]
-x_plot_range = range(indx_start, indx_end)
+plt.title('Forcast', color = 'black')
+x_plot_range = range(data_size)
+plt.plot(x_plot_range, data, color = 'blue')
 
-plt.plot(x_plot_range, data_plotted, color = 'red')
+rnd = 2
+col = 'red'
+h_lines = forecast
+plt.axhline(y = forecast, label = f'Forecast is {round(forecast, rnd)} ', color = col, linewidth = 0.8, linestyle = '--')
+
+# Plot Labels
+empty_plot = []
+col = 'black'; style = '--'; width = 0.8
+plt.plot(empty_plot,  label = f'Max of Foracst {round(max_cast, rnd)}', linewidth = width, color = col, linestyle = style)
+plt.plot(empty_plot, label = f'Min of Forecast  {round(min_cast, rnd)}', linewidth = width, color = col, linestyle  = style)
+
+plt.legend()
 plt.show()
