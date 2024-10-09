@@ -1,12 +1,25 @@
 import numpy as np
 
+global forecast_kwargs
+
 
 class DataMod:
 
     def __init__(self, data=None) -> None:
 
         self.data = data
+    
+        # global_kwargs = {
+        # 'data': self.data,
+        # 'meanTend' : self.meanTend,
+        # 'expectation': self.expectation,
+        # 'func' :self.meanTend,
+        # 'from_x' : None,
+        # 'iterations' : None
+        # }
 
+        # self.global_kwargs = global_kwargs
+        
     def linearise(self, data_arg=None, data_type=float):
         data = self.data if data_arg is None else data_arg
 
@@ -20,7 +33,7 @@ class DataMod:
 
         if mean_abs_diff == 0:
             raise ValueError(
-                "The data does not have sufficient variation to compute a meaningful linear form."
+                'The data does not have sufficient variation to compute a meaningful linear form.'
             )
 
         data_1 = np.arange(min_data, max_data, mean_abs_diff)
@@ -39,7 +52,7 @@ class DataMod:
         return deviation_set
     
     def meanTend(self, data_arg=None, linear=True, absolute_diff=True):
-        """
+        '''
         Calculate the mean tendency of the provided data.
 
         This method computes the mean central tendency based on the input data. If no data is 
@@ -80,7 +93,7 @@ class DataMod:
         
         **For more info , see link below**:
             `<https://latrobe.libguides.com/maths/measures-of-central-tendency>`
-        """
+        '''
         data = self.data if data_arg is None else data_arg
         linearise = self.linearise
         deviation = self.deviation
@@ -88,14 +101,23 @@ class DataMod:
         data = np.array(data)
         data_1 = linearise(data) if linear else data
         deviat_data = deviation(data_1, data, absolute = absolute_diff)
-        tend_data = np.apply_along_axis(np.sum, axis=0, arr=deviat_data)
+        tend_data = np.apply_along_axis(sum, axis=0, arr=deviat_data)
         index_tend = np.where(tend_data == tend_data.min())
         tendency = data[index_tend].mean()
         return tendency
 
-    def expectation(self, data_arg, func = meanTend,  from_x=None, iterations=None):
+    def expectation (self, quantity_events, possible_events, probabilities):
+        result = quantity_events*sum(event*prob for event, prob in zip(possible_events, probabilities))
+        return result
+     
+    def forecastData(self, data_arg, func = None,  from_x=None, iterations=None, **kwargs):
+
         data = self.data if data_arg is None else data_arg
         meanTend = self.meanTend
+        expectation = self.expectation
+
+        if func == None:
+            func = self.meanTend
 
         from_x = data[-1] if from_x is None else from_x
         iterations = len(data) if iterations is None else iterations
@@ -115,67 +137,112 @@ class DataMod:
         prob_pos = size_pos / size_diff
         prob_neg = size_neg / size_diff
 
-        change_excpection = iterations * (prob_pos * tend_pos + prob_neg * tend_neg)
+        events = tend_pos, tend_neg
+        probs = prob_pos, prob_neg
+        num_events = iterations
+
+        change_excpection = expectation(num_events, events, probs)
         expectation_data = from_x + change_excpection
         max_expectation = from_x + iterations * tend_pos
         min_expectation = from_x + iterations * tend_neg
 
         return expectation_data, min_expectation, max_expectation
 
-
 # Test Functions
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     import pandas as pd
     import matplotlib.pyplot as plt
+    from Forex import exchangeRate
 
-    path = r"/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/EURAUD.ifx.csv"
-    data = pd.read_csv(path, sep="\t")["<CLOSE>"].dropna()
+    path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/EURAUD.ifx.csv'
+    data = pd.read_csv(path, sep='\t')['<CLOSE>'].dropna()
 
     data_size = data.size
     data = data.to_list()
 
-    indx_start = data_size // 4
-    indx_end = data_size
-
     instance = DataMod()
-    forecast, min_cast, max_cast = instance.expectation(data)
+    forecast, min_cast, max_cast = instance.forecastData(data)
 
-    # Plot Data
-    plt.title("Forcast", color="black")
-    x_plot_range = range(data_size)
-    plt.plot(x_plot_range, data, color="blue")
+    # Buy -> converted to source, then trade on source to converted
+    # Sell -> source to converted, then trade on converted to source
 
-    rnd = 2
-    col = "red"
-    h_lines = forecast
-    plt.axhline(
-        y=forecast,
-        label=f"Forecast is {round(forecast, rnd)} ",
-        color=col,
-        linewidth=0.8,
-        linestyle="--",
-    )
+    # Rate to buy is inverse of rate given 
+    # Rate to sell is rate given
 
-    # Plot Labels
-    empty_plot = []
-    col = "black"
-    style = "--"
-    width = 0.8
-    plt.plot(
-        empty_plot,
-        label=f"Max of Foracst {round(max_cast, rnd)}",
-        linewidth=width,
-        color=col,
-        linestyle=style,
-    )
-    plt.plot(
-        empty_plot,
-        label=f"Min of Forecast  {round(min_cast, rnd)}",
-        linewidth=width,
-        color=col,
-        linestyle=style,
-    )
+    source = 'AUD'
+    converted = 'EUR'
+    Trade_units = converted + source
 
-    plt.legend()
-    plt.show()
+    investment_currency = 'ZAR'
+    profit_currency = 'ZAR'
+
+    rate_source_conv = data[-1]
+
+    buy_rate 
+    rate_inv_source = exchangeRate(investment_currency, source)
+    rate_profit_ 
+
+    print(rate_inv_source)
+
+    # region Plot Data 
+    plot_data = False
+    if plot_data:
+        plt.figure(figsize=(12, 6))
+        plt.title(f'Forcast of {Trade_units}', color='black')
+        x_plot_range = range(data_size)
+        plt.plot(x_plot_range, data, color='blue')
+
+        rnd = 2
+        col = 'red'
+        h_lines = forecast
+        plt.axhline(
+            y=forecast,
+            label=f'Forecast is {round(forecast, rnd)} ',
+            color=col,
+            linewidth=0.8,
+            linestyle='--',
+        )
+
+        # Plot the linear line from the last data point to the forecast
+        plt_linear = False
+        if plt_linear:
+            x_start = data_size - 1  # Last index
+            y_start = data[-1]        # Last data point
+            x_end = data_size + len(data)  # Next index for forecast + iterations
+            y_end = forecast           # Forecast value
+
+            # Create a linear line from (x_start, y_start) to (x_end, y_end)
+            x_values = np.linspace(x_start, x_end, num=len(data) + 10)  # More points for a smooth line
+            y_values = np.linspace(y_start, y_end, num=len(x_values))   # Linear interpolation
+
+            plt.plot(x_values, y_values, color='green', linestyle='--', linewidth=0.9, label='Forecast Line')
+
+        # region Plot Labels
+        empty_plot = []
+        col = 'black'
+        style = '--'
+        width = 0.8
+        plt.plot(
+            empty_plot,
+            label=f'Max of Foracst {round(max_cast, rnd)}',
+            linewidth=width,
+            color=col,
+            linestyle=style,
+        )
+        plt.plot(
+            empty_plot,
+            label=f'Min of Forecast  {round(min_cast, rnd)}',
+            linewidth=width,
+            color=col,
+            linestyle=style,
+        )
+        # endregion
+
+        plt.xlabel('Data Points')
+        plt.ylabel('Value')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    #endregion
