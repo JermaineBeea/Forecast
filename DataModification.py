@@ -179,9 +179,7 @@ if __name__ == '__main__':
 
     rate_source_conv = data[-1]
 
-    buy_rate 
     rate_inv_source = exchangeRate(investment_currency, source)
-    rate_profit_ 
 
     print(rate_inv_source)
 
