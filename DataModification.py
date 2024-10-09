@@ -23,37 +23,77 @@ class DataMod:
                 "The data does not have sufficient variation to compute a meaningful linear form."
             )
 
-        linear_data = np.arange(min_data, max_data, mean_abs_diff)
+        data_1 = np.arange(min_data, max_data, mean_abs_diff)
 
-        linear_data = linear_data.astype(data_type)
+        data_1 = data_1.astype(data_type)
 
-        return linear_data
+        return data_1
 
     def deviation(self, set_1, set_2, absolute=False):
         set_1 = np.array(set_1)
         set_2 = np.array(set_2)
-
         set_1 = set_1.reshape(-1, 1)
         set_2 = set_2.reshape(1, -1)
-
         deviation_set = np.abs(set_1 - set_2) if absolute else set_1 - set_2
 
         return deviation_set
+    
+    def meanTend(self, data_arg=None, linear=True, absolute_diff=True):
+        """
+        Calculate the mean tendency of the provided data.
 
-    def meanTend(self, data_arg=None):
+        This method computes the mean central tendency based on the input data. If no data is 
+        provided through the `data_arg` parameter, the method will utilize the data 
+        specified during the initialization of the class.
+
+        Args:
+            data_arg (Default is None):
+                The data source for calculating the mean tendency. If None, the method 
+                will use the instance data initialized with the class. Default is None.
+                    
+            linear (bool, optional): 
+                If set to True, the method linearizes `data_1` before passing it to 
+                the deviation function. Default is True.
+
+            absolute_diff (bool, optional): 
+                Indicates whether to compute the absolute difference in the calculation. 
+                Default is True.
+
+        Returns:
+            float: The mean tendency of the provided data.
+
+        Raises:
+            ValueError: If the input data is invalid or incompatible.
+        
+        Derivation:
+        -----------
+            1. The mean central tendency is the mean of all elemnts of the data of which have the lowest tendency
+                data = [x_0, x_1, .....x_n]
+                if x_3 and x_4 have the lowest tendency of data, then mean of central tendency is
+                mean_central_tend = mean(x_3, x_4)
+
+            2. The tendency of an elemnet in the data is the mean of the sum of the absolut difference between that elemnt to all other elemnts in the data:
+                >>> tendency = mean(SUM[abs(x_0 - x_n)]) for x_n in data, where x_0 is the element in question.
+                
+        Example:
+            >>> mean_tendency = instance.meanTend(data_arg=my_data, linear=False)
+        
+        **For more info , see link below**:
+            `<https://latrobe.libguides.com/maths/measures-of-central-tendency>`
+        """
         data = self.data if data_arg is None else data_arg
         linearise = self.linearise
         deviation = self.deviation
 
         data = np.array(data)
-        linear_data = linearise(data)
-        deviat_data = deviation(linear_data, data, True)
+        data_1 = linearise(data) if linear else data
+        deviat_data = deviation(data_1, data, absolute = absolute_diff)
         tend_data = np.apply_along_axis(np.sum, axis=0, arr=deviat_data)
         index_tend = np.where(tend_data == tend_data.min())
         tendency = data[index_tend].mean()
         return tendency
 
-    def expectation(self, data_arg, from_x=None, iterations=None):
+    def expectation(self, data_arg, func = meanTend,  from_x=None, iterations=None):
         data = self.data if data_arg is None else data_arg
         meanTend = self.meanTend
 
@@ -69,8 +109,8 @@ class DataMod:
         size_pos = diff_pos.size
         size_neg = diff_neg.size
 
-        tend_pos = meanTend(diff_pos)
-        tend_neg = meanTend(diff_neg)
+        tend_pos = func(diff_pos)
+        tend_neg = func(diff_neg)
 
         prob_pos = size_pos / size_diff
         prob_neg = size_neg / size_diff
