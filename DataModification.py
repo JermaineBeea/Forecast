@@ -120,7 +120,7 @@ if __name__ == '__main__':
     Buy_threshold =  Fab" > Fab' + Spread
     """
     
-    currency_a = 'EUR'
+    currency_a = 'USD'
     currency_b = 'AUD'
     trade_units = currency_a + currency_b
     spread = 0
@@ -129,13 +129,12 @@ if __name__ == '__main__':
     profit_currency = 'ZAR'
 
     # Condition to get data from API, or cloud data.
-    external_data = False
+    external_data = True
 
     if external_data:
         # Get data from Yahoo Finance
         period = '1d'
-        interval = '60m'
-        data_rates = exchangeRate(currency_a, currency_b, period=period, interval=interval)
+        data_rates = exchangeRate(currency_a, currency_b, period=period)['Close']
     else:
         # Get data from file
         path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/EURAUD.ifx.csv'
@@ -145,8 +144,8 @@ if __name__ == '__main__':
     sell_rate_ab = data_rates.iloc[-1]
     buy_rate_ba = 1 / (sell_rate_ab + spread)
 
-    rate_inv_a = 0.0520
-    rate_a_profit = 19.2445
+    rate_inv_a = exchangeRate(investment_currency, currency_a)
+    rate_a_profit = exchangeRate(currency_a, profit_currency)
 
     # Forecast of Data
     data_mod = DataMod()
@@ -161,8 +160,67 @@ if __name__ == '__main__':
     elif buy_threshold:
         messagebox.showinfo('BUY!!!', f'Buy {trade_units}')
     else:
-        messagebox.showinfo('VOID', f'Don’t trade {trade_units}')
+        messagebox.showinfo('VOID', f'Do not Trade trade {trade_units}')
 
-    # region Plot Data
-    plot_data = False
-    # Plot functionality goes here if needed
+    # region Plot Data 
+    plot_data = True
+    if plot_data:
+            
+        plt.figure(figsize=(12, 6))
+        plt.title(f'Forcast of {trade_units}', color='black')
+        x_plot_range = range(data_size)
+        plt.plot(x_plot_range, data_rates, color='blue')
+
+        rnd = 2
+        col = 'red'
+        h_lines = forecast
+        plt.axhline(
+            y=forecast,
+            label=f'Forecast is {round(forecast, rnd)} ',
+            color=col,
+            linewidth=0.8,
+            linestyle='--',
+        )
+
+        # Plot the linear line from the last data point to the forecast
+        plt_linear = False
+        if plt_linear:
+            x_start = data_size - 1  # Last index
+            y_start = data_rates[-1]        # Last data point
+            x_end = data_size + len(data_rates)  # Next index for forecast + iterations
+            y_end = forecast           # Forecast value
+
+            # Create a linear line from (x_start, y_start) to (x_end, y_end)
+            x_values = np.linspace(x_start, x_end, num=len(data_rates) + 10)  # More points for a smooth line
+            y_values = np.linspace(y_start, y_end, num=len(x_values))   # Linear interpolation
+
+            plt.plot(x_values, y_values, color='green', linestyle='--', linewidth=0.9, label='Forecast Line')
+
+        # region Plot Labels
+        empty_plot = []
+        col = 'black'
+        style = '--'
+        width = 0.8
+        plt.plot(
+            empty_plot,
+            label=f'Max of Foracst {round(max_cast, rnd)}',
+            linewidth=width,
+            color=col,
+            linestyle=style,
+        )
+        plt.plot(
+            empty_plot,
+            label=f'Min of Forecast  {round(min_cast, rnd)}',
+            linewidth=width,
+            color=col,
+            linestyle=style,
+        )
+        # endregion
+
+        plt.xlabel('Data Points')
+        plt.ylabel('Value')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    #endregion
