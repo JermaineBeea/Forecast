@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter import messagebox
-from Forex import exchangeRate  # Assuming this is a valid module
+from Modules.Forex import exchangeRate  # Assuming this is a valid module
 
 class DataMod:
     """Class for data modification and forecasting."""
