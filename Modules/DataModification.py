@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter import messagebox
-from Modules.Forex import exchangeRate  # Assuming this is a valid module
+from Forex import exchangeRate  
 
 class DataMod:
     """Class for data modification and forecasting."""
@@ -189,15 +189,14 @@ if __name__ == '__main__':
     # Calculate profit factors
     sell_profit_factor = sell_rate_ab / (forecast + spread) - 1
     buy_profit_factor = forecast * buy_rate_ba - 1
-
-    # Prepare message for trading decision
-    message_box_message = (
-        ('SELL!', f'Sell {trade_units}') if sell_profit_factor > 0 else 
-        ('BUY!', f'Buy {trade_units}') if buy_profit_factor > 0 else 
-        ('VOID', f'Do not trade {trade_units}')
-    )
     profit_factor = sell_profit_factor if sell_profit_factor > 0 else buy_profit_factor if buy_profit_factor > 0 else 0
 
+    # Prepare message for trading decision
+    test_profit = 1000 * rate_inv_a * rate_a_profit * profit_factor
+    str = 'sell' if sell_profit_factor > 0 else 'buy' if buy_profit_factor > 0 else ''
+    message_box_message = (
+        f'{str.upper()}!', f'Sell {trade_units} with Profit factor {profit_factor:e}\nTest investement: {investment_currency} 1000 yields {profit_currency} {test_profit}')
+    
     # Show trading message
     messagebox.showinfo(message_box_message[0], message_box_message[1])
 
@@ -208,18 +207,20 @@ if __name__ == '__main__':
     print(f'Profit from {message_box_message[1]} is {investment_currency} {profit}')
 
     # Plot Data
-    plot_data = False  
+    plot_data = True  
     if plot_data:
         plt.figure(figsize=(12, 6))
-        plt.title(f'Forecast of {trade_units}', color='black')
+        plt.title(f'Forecast of {trade_units}\n {message_box_message[1]}', color='black')
         plt.plot(range(data_rates.size), data_rates, color='blue')
 
         # Plot forecast line
         plt.axhline(y=forecast, label=f'Forecast is {round(forecast, 2)}', color='red', linewidth=0.8, linestyle='--')
 
-        # Plot max and min forecasts
-        plt.axhline(y=max_cast, label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
-        plt.axhline(y=min_cast, label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+        # # Plot max and min Labels
+        # empty_plt = []
+        # empty_plt = []
+        plt.plot([], label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+        plt.plot([], label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
 
         plt.xlabel('Data Points')
         plt.ylabel('Value')
