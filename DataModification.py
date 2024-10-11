@@ -120,7 +120,7 @@ if __name__ == '__main__':
     Buy_threshold =  Fab" > Fab' + Spread
     """
     
-    currency_a = 'USD'
+    currency_a = 'EUR'
     currency_b = 'AUD'
     trade_units = currency_a + currency_b
     spread = 0
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     profit_currency = 'ZAR'
 
     # Condition to get data from API, or cloud data.
-    external_data = True
+    external_data = False
 
     if external_data:
         # Get data from Yahoo Finance
@@ -144,8 +144,9 @@ if __name__ == '__main__':
     sell_rate_ab = data_rates.iloc[-1]
     buy_rate_ba = 1 / (sell_rate_ab + spread)
 
-    rate_inv_a = exchangeRate(investment_currency, currency_a)
-    rate_a_profit = exchangeRate(currency_a, profit_currency)
+    rate_a_profit = exchangeRate(currency_a, profit_currency) if external_data else 19.1156
+    rate_inv_a = 1/rate_a_profit
+
 
     # Forecast of Data
     data_mod = DataMod()
@@ -157,10 +158,16 @@ if __name__ == '__main__':
 
     if sell_threshold:
         messagebox.showinfo('SELL!!!', f'Sell {trade_units}')
+        opening_rate = sell_rate_ab
+        closing_rate = 1/(forecast + spread)
+
     elif buy_threshold:
         messagebox.showinfo('BUY!!!', f'Buy {trade_units}')
+        opening_rate = buy_rate_ba
+        closing_rate = forecast
     else:
         messagebox.showinfo('VOID', f'Do not Trade trade {trade_units}')
+        exit('No potential Trade to execute : Exited Program')
 
     # region Plot Data 
     plot_data = True
