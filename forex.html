@@ -1,0 +1,96 @@
+
+<!-- from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+@app.route('/convert', methods=['POST'])
+def convert_currency():
+    # Get JSON data from the request
+    data = request.json
+    amount = data['amount']
+    currency_a = data['currency_a']
+    currency_b = data['currency_b']
+
+    api_url = f"https://api.exchangerate-api.com/v4/latest/{currency_a}"
+    
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        rates = response.json()['rates']
+
+        if currency_b in rates:
+            exchange_rate = rates[currency_b]
+            converted_amount = amount * exchange_rate
+            return jsonify({
+                'converted_amount': converted_amount,
+                'exchange_rate': exchange_rate
+            })
+        else:
+            return jsonify({'error': f'{currency_b} is not available.'}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True) -->
+
+    <!-- Start your Flask server:
+
+bash
+
+    python app.py
+
+    Open the index.html file in a web browser. Fill in the input fields and click "Convert."
+
+Summary
+
+This Flask + JavaScript method is simple because:
+
+    Less Complexity: You deal with only two parts: a lightweight backend and straightforward frontend code.
+    Easy to Understand: Each part does a specific task, making debugging and enhancements easier.
+    Quick Setup: Minimal coding is required to get started and see results.
+
+This approach is highly recommended if you want to keep things simple while still having a functional currency converter!
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency Converter</title>
+    <script>
+        async function convertCurrency() {
+            const amount = document.getElementById('amount').value;
+            const currencyA = document.getElementById('currencyA').value;
+            const currencyB = document.getElementById('currencyB').value;
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ amount, currency_a: currencyA, currency_b: currencyB }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Converted Amount: ${result.converted_amount.toFixed(2)} ${currencyB} at an exchange rate of ${result.exchange_rate}`);
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while trying to convert currency.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <input id="amount" type="number" placeholder="Amount" />
+    <input id="currencyA" type="text" placeholder="Source Currency (e.g., ZAR)" />
+    <input id="currencyB" type="text" placeholder="Target Currency (e.g., USD)" />
+    <button onclick="convertCurrency()">Convert</button>
+</body>
+</html>
+

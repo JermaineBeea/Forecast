@@ -1,6 +1,8 @@
 import yfinance as yf
+import requests
 
-def exchangeRate(from_x, to_x, period="1d", interval=None, start_date=None, end_date=None):
+# Using Yahho Finance
+def exchangeRate_yf(from_x, to_x, period="1d", interval=None, start_date=None, end_date=None):
     """
     Fetch the exchange rate between two currencies.
 
@@ -34,7 +36,7 @@ def exchangeRate(from_x, to_x, period="1d", interval=None, start_date=None, end_
         print(f"No data available for {currency_pair} in the specified range.")
     return exchange_rate
 
-def assetPrice(asset_ticker, period="1d", interval=None, start_date=None, end_date=None):
+def assetPrice_yf(asset_ticker, period="1d", interval=None, start_date=None, end_date=None):
     """
     Fetch the historical price data for a specified asset.
 
@@ -63,14 +65,65 @@ def assetPrice(asset_ticker, period="1d", interval=None, start_date=None, end_da
         print(f"No data available for {asset_ticker} in the specified range.")
     return price_data
 
-if __name__ == "__main__":
-    # Specify the asset ticker (e.g., AAPL for Apple Inc.)
-    asset_ticker = "AAPL"
+# Using API
 
-    # Fetch exchange rate from USD to ZAR
-    exch_rate = exchangeRate('USD', 'ZAR')
-    print(f"Exchange rate from USD to ZAR:\n{exch_rate}\n")
+def exchangeRate(currency_a, currency_b, start_date=None, end_date=None, api_url=None):
+    # Set the API URL for fetching historical exchange rates
+    api_url = f"https://api.exchangerate-api.com/v4/latest/{currency_a}" if api_url is None else api_url
+    
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Raise an error for bad responses
+        data = response.json()
+        
+        # Extract the exchange rates for the specified currency
+        if currency_b in data['rates']:
+            exchange_rate = data['rates'][currency_b]
+            # print(f"Current exchange rate for {currency_b} to {currency_a}: {exchange_rate}")
+            return exchange_rate  # Just returning the current rate for demonstration
+        else:
+            print(f"Error: {currency_b} is not available in the exchange rates.")
+            return None
+    except Exception as e:
+        print(f"Error fetching exchange rate: {e}")
+        return None
 
-    # Fetch asset price for Apple Inc.
-    price_data = assetPrice(asset_ticker)
-    print(f"Price data for {asset_ticker}:\n{price_data}")
+def assetPrice(asset_symbol, api_url=None):
+    # Set the API URL for fetching asset prices
+    # This example uses a mock URL. Replace it with the actual endpoint for the asset price API you're using.
+    api_url = f"https://api.example.com/v1/price/{asset_symbol}" if api_url is None else api_url
+
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()  # Raise an error for bad responses
+        data = response.json()
+        
+        # Extract the price of the asset
+        asset_price = data.get('price')  # Change this based on the API's response structure
+        
+        if asset_price is not None:
+            return asset_price
+        else:
+            # print(f"Error: Price information for {asset_symbol} is not available.")
+            return None
+    except Exception as e:
+        print(f"Error fetching asset price: {e}")
+        return None
+
+if __name__== '__main_':
+    # Example usage
+    source_currency = 'ZAR'       # Source currency (e.g., ZAR)
+    target_currency = 'USD'       # Target currency (e.g., USD)
+
+    exchange_rate = exchangeRate(source_currency, target_currency)
+
+    if exchange_rate is not None:
+        print(f"Exchange rate for {target_currency}/{source_currency}: {exchange_rate:.4f}.")
+
+    # Example usage
+    asset_symbol = 'AAPL'  # Example asset symbol (e.g., Apple Inc.)
+    asset_price = assetPrice(asset_symbol)
+
+    if asset_price is not None:
+        print(f"The current price of {asset_symbol} is ${asset_price:.2f}.")
+
