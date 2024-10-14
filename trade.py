@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from tkinter import messagebox
 from Modules.DataModification import DataMod
-from Modules.Forex import exchangeRate
+from Modules.Forex import exchangeRate, exchangeRate_yf
 
 # Set up non-truncated output display for NumPy and Pandas
 np.set_printoptions(threshold=np.inf)
@@ -19,12 +19,12 @@ investment_currency = 'ZAR'
 profit_currency = 'ZAR'
 
 # Condition to get data from API or file
-external_data = False
+external_data = True
 
 # Get data from API or file
 if external_data:
     period = '1d'
-    data_rates = exchangeRate(currency_a, currency_b, period=period)['Close']
+    data_rates = exchangeRate_yf(currency_a, currency_b, period=period)['Close']
 else:
     path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
     data_rates = pd.read_csv(path, sep='\t').dropna()['<CLOSE>']
@@ -35,6 +35,8 @@ sell_rate_ab = data_rates.iloc[-1]
 buy_rate_ba = 1 / (sell_rate_ab + spread)
 rate_a_profit = exchangeRate(currency_a, profit_currency) if external_data else 19.1156
 rate_inv_a =  exchangeRate(investment_currency, currency_a) if external_data else 1/19.1156
+print(f'Exchange rate from {currency_a} to {profit_currency} is {rate_a_profit}')
+print(f'Exchange rate from {investment_currency} to {currency_a} is {rate_inv_a}')
 
 # Forecast of Data
 data_mod = DataMod()
