@@ -19,7 +19,7 @@ investment_currency = 'ZAR'
 profit_currency = 'ZAR'
 
 # Condition to get data from API or file
-external_data = True
+external_data = False
 
 # Get data from API or file
 if external_data:
@@ -77,6 +77,9 @@ if plot_data:
     # empty_plt = []
     plt.plot([], label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
     plt.plot([], label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+    # plt.axhline(max_cast, label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+    # plt.axhline(min_cast, label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+
 
     plt.xlabel('Data Points')
     plt.ylabel('Value')
