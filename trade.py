@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 from tkinter import messagebox
 from Modules.DataModification import DataMod
@@ -40,7 +41,10 @@ print(f'Exchange rate from {investment_currency} to {currency_a} is {rate_inv_a}
 
 # Forecast of Data
 data_mod = DataMod()
-min_cast, forecast, max_cast = data_mod.forecastData(data_rates, from_x=sell_rate_ab)
+ditsr_forecast = data_mod.forecastData(data_rates, from_x=sell_rate_ab)
+forecast = ditsr_forecast[4]
+upper_bound = ditsr_forecast[5: -1]
+lower_bound = ditsr_forecast[0: 3]
 
 # Calculate profit factors
 sell_profit_factor = sell_rate_ab / (forecast + spread) - 1
@@ -51,39 +55,54 @@ profit_factor = sell_profit_factor if sell_profit_factor > 0 else buy_profit_fac
 test_profit = 1000 * rate_inv_a * rate_a_profit * profit_factor
 str = 'sell' if sell_profit_factor > 0 else 'buy' if buy_profit_factor > 0 else ''
 message_box_message = (
-    f'{str.upper()}!', f'Sell {trade_units} with Profit factor {profit_factor:e}\nTest investement: {investment_currency} 1000 yields {profit_currency} {test_profit}')
+    f'{str.upper()}!', f'{str.capitalize()} {trade_units} with Profit factor {profit_factor:e}\nTest investement: {investment_currency} 1000 yields {profit_currency} {test_profit}')
 
 # Show trading message
-messagebox.showinfo(message_box_message[0], message_box_message[1])
+show_message = False
+if show_message: messagebox.showinfo(message_box_message[0], message_box_message[1])
 
 # Calculate profit from trade
 investment = 40000  # Investment amount in investment currency
 profit = investment * rate_inv_a * rate_a_profit * profit_factor
 
-print(f'Profit from {message_box_message[1]} is {investment_currency} {profit}')
-
 # Plot Data
 plot_data = True  
 if plot_data:
+
+    rnd = 4
+
     plt.figure(figsize=(12, 6))
-    plt.title(f'Forecast of {trade_units}\n {message_box_message[1]}', color='black')
+    plt.title(f'Forecast of {trade_units}: {forecast}\n {message_box_message[1]}', color='black')
+
+    #Plot Data and Forecast of data
     plt.plot(range(data_rates.size), data_rates, color='blue')
+    plt.axhline(forecast, label=f'Forecast: {round(forecast, rnd)}', color='red', linestyle='--', linewidth=0.8)
 
-    # Plot forecast line
-    plt.axhline(y=forecast, label=f'Forecast is {round(forecast, 2)}', color='red', linewidth=0.8, linestyle='--')
+    # Create custom legend entries using Line2D
+    count = 1
+    legend_lines = []
 
-    # # Plot max and min Labels
-    # empty_plt = []
-    # empty_plt = []
-    plt.plot([], label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
-    plt.plot([], label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
-    # plt.axhline(max_cast, label=f'Max of Forecast {round(max_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
-    # plt.axhline(min_cast, label=f'Min of Forecast {round(min_cast, 2)}', color='black', linestyle='--', linewidth=0.8)
+    # Add upper bounds to the legend
+    for bound in reversed(upper_bound):
+        legend_lines.append(Line2D([0], [0], label=f'Upper bound_{4 - count}: {round(bound, rnd)}', color='black', linestyle='--', linewidth=0.8))
+        count += 1
 
+    # Add forecast line to the legend
+    legend_lines.append(Line2D([0], [0], label=f'Forecast: {round(forecast, rnd)}', color='red', linestyle='--', linewidth=0.8))
 
+    # Add lower bounds to the legend
+    count = 1
+    for bound in reversed(lower_bound):
+        legend_lines.append(Line2D([0], [0], label=f'Lower bound_{count}: {round(bound, rnd)}', color='black', linestyle='--', linewidth=0.8))
+        count += 1
+
+    # Now create the legend with custom entries
+    plt.legend(handles=legend_lines, title='Distribution of Forecast', title_fontsize=12)
+
+    # Set labels and grid
     plt.xlabel('Data Points')
     plt.ylabel('Value')
-    plt.legend()
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
