@@ -61,7 +61,7 @@ message_box_message = (
 show_message = False
 if show_message: messagebox.showinfo(message_box_message[0], message_box_message[1])
 
-# Calculate profit from trade
+# TODO query sectiom
 investment = 40000  # Investment amount in investment currency
 profit = investment * rate_inv_a * rate_a_profit * profit_factor
 
