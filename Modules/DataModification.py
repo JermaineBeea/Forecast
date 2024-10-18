@@ -14,6 +14,7 @@ class DataMod:
         """
         self.data = np.array(data)
 
+
     def linearise(self, data_arg=None, data_type=float):
         """
         Linearize the provided data by generating evenly spaced values between the min and max of the data.
@@ -40,6 +41,7 @@ class DataMod:
 
         # Generate linearized data from min to max with steps equal to mean absolute difference
         return list(np.arange(min_data, max_data, mean_abs_diff).astype(data_type))
+
 
     def deviation(self, set_1, set_2, standard_deviation=False, absolute=True):
         """
@@ -78,7 +80,8 @@ class DataMod:
 
         return closest_elements, float(mean_deviation), element_wise_deviations, list(deviations)
 
-    def distribution(self, data_arg, tend_func =  linear=True, absolute_diff=True):
+    #TODO GET DISTRIBUTION PROBABILITIES
+    def distribution(self, data_arg, tend_func = np.mean,  linear=True, absolute_diff=True):
         """
         Calculate the distribution of central tendency for the provided data.
 
@@ -96,13 +99,13 @@ class DataMod:
         linear_data = self.linearise(data) if linear else data
 
         # Compute the deviation and find central tendency
-        mean_deviation, element_wise_deviation = self.deviation(linear_data, data, absolute=absolute_diff)[:2]
-        index_of_tendency = np.argmin(element_wise_deviation)
-        central_tendency = data[index_of_tendency]
+        mean_deviation = self.deviation(linear_data, data, absolute=absolute_diff)[1]
+        central_tendency = tend_func(data)
 
         # Return lower bound, central tendency, and upper bound based on mean deviation
         return sorted([float(central_tendency - mean_deviation), float(central_tendency), float(central_tendency + mean_deviation)])
     
+
     def expectation(self, quantity_events, possible_events, probabilities):
         """
         Calculate the expected value for a set of events.
@@ -118,6 +121,7 @@ class DataMod:
         expected_value = quantity_events * np.sum(np.array(possible_events) * np.array(probabilities))
         return float(expected_value)
      
+
     def forecastData(self, data_arg=None, func=None, from_x=None, iterations=None):
         """
         Forecast future data based on trends in past data.
