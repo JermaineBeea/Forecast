@@ -129,9 +129,9 @@ class DataMod:
         # Display log if enabled
         if DISPLAY_LOG_linear:
             function_name = self.linearise.__name__
-            log_1 = f'MIN data: {min_data}\nMAX data: {max_data}\nMEAN DIFFERENCE:{mean_abs_diff}'
-            log_2 = f'SIZE data: {len(data)}\nTYPE return: {type(linearised_data)}\nSIZE return: {len(linearised_data)}'
-            print(f'LOG OF FUNCTION: {function_name}\n{log_2}\n')
+            log_1 = f'{"--ARG DATA ATTRIBUTES--".upper()}\ntype: {type(data)}\nshape: {np.shape(data)}\nsize: {len(data)}\n'
+            log_2 = f'{"--RETURN ATTRIBUTES--".upper()}\ntype: {type(linearised_data)}\nshape: {np.shape(linearised_data)}\nsize: {len(linearised_data)}'
+            print(f'LOG OF FUNCTION: {function_name}\n{log_1}{log_2}\n')
 
         return list(linearised_data)
 
@@ -163,7 +163,9 @@ class DataMod:
 
         # set_1 attributes often gives rise bugs and errors
         if DISPLAY_LOG_deviation:
-            print(f'LOG OF FUNCTION: {self.deviation.__name__}\nTYPE set_1: {type(set_1)}\nSHAPE set_1: {np.shape(set_1)}\nSIZE set_1: {len(set_1)}\n')
+            function_name = self.deviation.__name__
+            log_1 = f'{"--ARG SET_1 ATTRIBUTES--".upper()}\ntype: {type(set_1)}\nshape: {np.shape(set_1)}\nsize: {len(set_1)}'
+            print(f'LOG OF FUNCTION: {function_name}\n{log_1}\n')
 
         # Compute deviations: absolute or normal
         if abs_diff:

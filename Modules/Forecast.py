@@ -49,7 +49,7 @@ if __name__ == '__main__':
     raw_data = pd.read_csv(file_path, sep = '\t')['<CLOSE>'].dropna()
     data = raw_data.to_list()
 
-    forecast = forecastData(data, std_dev = True)
+    forecast = forecastData(data, std_dev = False)
 
     print(forecast)
 
