@@ -15,6 +15,47 @@ class DataMod:
         self.data = np.array(data)
 
 
+    def numRange(self, num, data):
+        """
+        Determines the range in a sorted array where a given number lies.
+
+        This function returns the two elements in `data` such that `num` lies between them.
+        If `num` is smaller than the smallest element in `data`, it returns (None, smallest element).
+        If `num` is larger than the largest element in `data`, it returns (largest element, None).
+        
+        Args:
+            num (int or float): The number to locate within the range of `data`.
+            data (array-like): A sorted array of data_2 to search through.
+
+        Returns:
+            tuple: A tuple of two data_2 where `num` lies between them. If `num` is outside the bounds
+                of `data`, one of the tuple elements will be `None`.
+        """
+     
+        data = sorted(data) 
+        min_data = data[0]
+        max_data = data[-1]
+
+        if num < min_data or num > max_data:
+            return None
+        
+        # num is the smallest element
+        if num == min_data:
+            idx = 0
+            value_range = min_data, data[1]
+
+        # num is the largest element
+        elif num == max_data:
+            idx = len(data) - 2
+            value_range = data[-2], max_data  
+
+        else:
+            idx = int(np.searchsorted(data, num)) - 1
+            value_range = int(data[idx]), int(data[idx + 1])
+
+        return idx , value_range
+
+
     def linearise(self, data_arg=None, data_type=float):
         """
         Linearize the provided data by generating evenly spaced values between the min and max of the data.
@@ -81,7 +122,7 @@ class DataMod:
         return closest_elements, float(mean_deviation), element_wise_deviations, list(deviations)
 
     #TODO GET DISTRIBUTION PROBABILITIES
-    def distribution(self, data_arg, tend_func = np.mean,  linear=True, absolute_diff=True):
+    def distribution(self, data_arg, tend_func = None,  linear=True, absolute_diff=True):
         """
         Calculate the distribution of central tendency for the provided data.
 
@@ -93,18 +134,24 @@ class DataMod:
         Returns:
             list: A sorted list containing the lower bound, central tendency, and upper bound.
         """
+        tend_func = self.deviation if tend_func is None else tend_func
+
         # Use class data if no argument provided
         data = self.data if len(data_arg) == 0 else np.array(data_arg)
         # Optionally linearize the data
         linear_data = self.linearise(data) if linear else data
 
         # Compute the deviation and find central tendency
-        mean_deviation = self.deviation(linear_data, data, absolute=absolute_diff)[1]
-        central_tendency = tend_func(data)
+        central_tendency, mean_deviation = self.deviation(linear_data, data, absolute=absolute_diff)[1]
+
+        central_tendency = central_tendency if tend_func.__name__ == self.deviation.__name__ else tend_func(data)
 
         # Return lower bound, central tendency, and upper bound based on mean deviation
         return sorted([float(central_tendency - mean_deviation), float(central_tendency), float(central_tendency + mean_deviation)])
     
+
+    def distrProb(self, data, distribution):
+            ...
 
     def expectation(self, quantity_events, possible_events, probabilities):
         """
@@ -120,59 +167,60 @@ class DataMod:
         """
         expected_value = quantity_events * np.sum(np.array(possible_events) * np.array(probabilities))
         return float(expected_value)
-     
 
-    def forecastData(self, data_arg=None, func=None, from_x=None, iterations=None):
-        """
-        Forecast future data based on trends in past data.
-
-        Args:
-            data_arg (list or array-like): Optional data to be used for forecasting. Defaults to class data.
-            func (function): Optional function to modify data trends.
-            from_x (numeric): Starting point for the forecast. Defaults to the last value in the data.
-            iterations (int): Number of forecast iterations. Defaults to the length of the data.
-
-        Returns:
-            list: Sorted forecasted values based on past data trends.
-        """
-        data = self.data if data_arg is None else np.array(data_arg)
-        from_x = data[-1] if from_x is None else from_x
-        iterations = len(data) if iterations is None else iterations
-
-        # Calculate differences between consecutive data points
-        differences = np.diff(data, n=1)
-        positive_diffs, negative_diffs = differences[differences >= 0], differences[differences < 0]
-        prob_pos, prob_neg = len(positive_diffs) / len(differences), len(negative_diffs) / len(differences)
-        
-        # Calculate the distribution for positive and negative changes
-        distr_pos = self.distribution(positive_diffs)
-        distr_neg = self.distribution(negative_diffs)
-
-        # Ensure positive and negative distributions don't mix incorrectly
-        distr_pos = [0 if num < 0 else num for num in distr_pos]
-        distr_neg = [0 if num > 0 else num for num in distr_neg]
- 
-        # Create combinations of negative and positive distributions
-        product_combinations = list(iter.product(distr_neg, distr_pos))
-        forecasted_values = []
-
-        probabilities = (prob_neg, prob_pos)
-        # Compute expected values for each combination
-        for event_pair in product_combinations:
-            change_expectation = self.expectation(iterations, event_pair, probabilities)
-            forecasted_values.append(float(from_x + change_expectation))
-
-        return sorted(forecasted_values)
 
 # Test Functions
 if __name__ == '__main__':
-    import pandas as pd
+    import numpy as np
+    from collections import Counter
 
     data_mod = DataMod()
 
-    data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+def bin_data(bin_ranges, data, rnd=2):
+    """
+    Bins the input data based on defined bin ranges and calculates bin statistics.
 
-    dev = data_mod.deviation(data, data)
+    Args:
+        bin_ranges (list of int): The list of bin boundaries.
+        data (array-like): Input data to be binned.
+        rnd (int, optional): The rounding precision for calculations. Defaults to 2.
 
-    for item in dev:
-        print(f'{item}\n')
+    Returns:
+        tuple: 
+            - bins_count (list of int): The count of items in each bin.
+            - bins_abs_factor (list of float): The absolute bin frequency factors.
+            - bins_rel_factor (list of float): The relative bin frequency factors.
+    """
+    # Set predefined bin ranges
+    bin_count = len(bin_ranges)
+
+    # Input dataset
+    size_data = len(data)
+
+    # Initialize bin statistics lists
+    bins_count = [0] * (bin_count - 1)  # Count of elements per bin
+    bins_abs_factor = [0] * (bin_count - 1)  # Absolute frequency factor per bin
+    bins_rel_factor = [0] * (bin_count - 1)  # Relative frequency factor per bin
+
+    # Total number of data points within the bin range
+    num_in_bin_range = sum((data >= min(bin_ranges)) & (data <= max(bin_ranges)))
+
+    # Count occurrences of each element in the dataset
+    element_counts = Counter(data)
+
+    # Loop through each unique element in the data
+    for value in np.unique(data):
+        # Determine the bin range for the current value
+        bin_index = data_mod.numRange(value, bin_ranges)
+        
+        if bin_index is not None:  # If the value falls within a bin range
+            count = element_counts[value]  # Number of occurrences of the value
+            index = bin_index[0]  # Get the bin index
+
+            # Update bin statistics
+            bins_count[index] += count
+            bins_abs_factor[index] += round(bins_count[index] / size_data, rnd)
+            bins_rel_factor[index] += round(count / num_in_bin_range, rnd)
+    
+    # Return the bin statistics
+    return bins_count, bins_abs_factor, bins_rel_factor
