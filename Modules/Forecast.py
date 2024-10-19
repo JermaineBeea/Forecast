@@ -4,7 +4,9 @@ from DataModification import DataMod
 
 data_mod  = DataMod()
 
-def forecastData(data, from_value=None, size_forecast=None, rel_prob = True):
+def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **kwargs):
+    
+    #**Kwargs are arguments to be passed to distribution function
     
     from_value = data[-1] if from_value is None else from_value
     size_forecast = len(data) if size_forecast is None else size_forecast
@@ -12,7 +14,7 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True):
     # Get the first oder difference of data
     diff = np.diff(data, n = 1)
     # distribution ouput ->  mean_central_dev, distribution, absolute_probabilities, relative_probabilities
-    distr, absolute_prob, relative_prob= data_mod.distribution(diff)[1:]
+    distr, absolute_prob, relative_prob= data_mod.distribution(diff, **kwargs)[1:]
     probabilities = relative_prob if rel_prob else absolute_prob
 
     mean_lower_bound = np.mean((distr[0], distr[1]))
@@ -34,7 +36,7 @@ if __name__ == '__main__':
     raw_data = pd.read_csv(file_path, sep = '\t')['<CLOSE>'].dropna()
     data = raw_data.to_list()
 
-    forecast = forecastData(data)
+    forecast = forecastData(data, std_dev = False)
 
     print(forecast)
 

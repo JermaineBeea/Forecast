@@ -135,6 +135,7 @@ class DataMod:
 
         return list(linearised_data)
 
+
     def deviation(self, set_1, set_2, std_dev=None, abs_diff=None):
         """
         Purpose
@@ -150,10 +151,11 @@ class DataMod:
         Returns:
             tuple: 
                 - central_tendency (array): Elements in set_1 with the smallest deviation to set_2.
-                - mean_element_wise_deviations (float): Mean deviation between the datasets.
+                - mean_abs_deviation (float): Mean deviation between the datasets.
                 - element_wise_deviations (list): All element-wise deviations between corresponding elements.
         """
-        std_dev = self.STANDARD_DEVIATION if std_dev is None else std_dev
+        #TODO remove redacted section
+        # std_dev = self.STANDARD_DEVIATION if std_dev is None else std_dev
         abs_diff = self.ABSOLUTE_DIFFERENCE if abs_diff is None else abs_diff
 
         set_1, set_2 = np.array(set_1), np.array(set_2)
@@ -169,12 +171,14 @@ class DataMod:
         else:
             element_wise_deviations = set_1 - set_2
 
+        #TODO remove redacted section
         # Compute mean or standard deviation of deviations
-        if std_dev:
-            squared_element_wise_deviations = element_wise_deviations ** 2
-            mean_element_wise_deviations = np.sqrt(np.mean(squared_element_wise_deviations))
-        else:
-            mean_element_wise_deviations = np.mean(element_wise_deviations)
+        # if std_dev:
+        #     squared_element_wise_deviations = element_wise_deviations ** 2
+        #     mean_abs_deviation = np.sqrt(np.mean(squared_element_wise_deviations))
+        # else:
+
+        mean_abs_deviation = np.mean(element_wise_deviations)
 
         # Find the element with the minimum deviation from the central tendency
         if len(set_1) > 1:
@@ -185,10 +189,10 @@ class DataMod:
             central_tendency = set_1[0]
 
 
-        return central_tendency, float(mean_element_wise_deviations), list(element_wise_deviations)
+        return central_tendency, float(mean_abs_deviation), list(element_wise_deviations)
 
 
-    def distribution(self, data_arg, tend_func=None, linear=True, std_dev=None, abs_diff=None):
+    def distribution(self, data_arg, tend_func=None, linear=True, std_dev=True, abs_diff=None):
         """
         Purpose
         --------
@@ -207,7 +211,7 @@ class DataMod:
 
         Returns:
             tuple:
-                mean_central_dev (float): The mean deviation from the central tendency.
+                mean_abs_deviation (float): The mean deviation from the central tendency.
                 distribution (list): A list containing the central tendency and deviations 
                                     (central tendency ± mean deviation).
                 absolute_probabilities (list): Absolute probabilities calculated for each bin in the distribution.
@@ -221,19 +225,24 @@ class DataMod:
         data = self.data if data_arg is None else np.array(data_arg)
         data_1 = self.linearise(data) if linear else data
        
-        if tend_func.__name__ != self.deviation.__name__:
+        if std_dev: 
+            # Standard deviation uses the mean of data as a central tendency
+            central_tendency = np.mean(data)
+        elif tend_func.__name__ != self.deviation.__name__:
+            # Function can be mode, mean, median etc
             central_tendency = tend_func(data)
         else:
+            # The central tendency will be computed using the element with the lowest tendcy to data
             central_tendency = self.deviation(data_1, data, abs_diff=abs_diff)[0][0]
 
         central_tendency = float(central_tendency) 
-        mean_central_dev = self.deviation([central_tendency], data, std_dev=std_dev)[1]
+        mean_abs_deviation = np.std(data) if std_dev else self.deviation([central_tendency], data, std_dev=std_dev)[1]
 
-        distribution = sorted([central_tendency - mean_central_dev, central_tendency, central_tendency + mean_central_dev])
+        distribution = sorted([central_tendency - mean_abs_deviation, central_tendency, central_tendency + mean_abs_deviation])
 
         absolute_probabilities, relative_probabilities = self.binCounts(distribution, data)[1:]
 
-        return mean_central_dev, distribution, absolute_probabilities, relative_probabilities
+        return mean_abs_deviation, distribution, absolute_probabilities, relative_probabilities
 
 
     def expectation(self, quantity_events, possible_events, probabilities):
