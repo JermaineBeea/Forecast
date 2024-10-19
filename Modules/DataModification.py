@@ -25,7 +25,7 @@ class DataMod:
             **kwargs: Keyword arguments to configure options like standard deviation and absolute difference.
         """
         self.data = np.array(data)
-        self.STANDARD_DEVIATION = kwargs.get('std_dev', False)
+        self.STANDARD_DEVIATION = kwargs.get('std_dev', True)
         self.ABSOLUTE_DIFFERENCE = kwargs.get('abs_diff', True)
 
     #TODO fix binData
@@ -192,7 +192,7 @@ class DataMod:
         return central_tendency, float(mean_abs_deviation), list(element_wise_deviations)
 
 
-    def distribution(self, data_arg, tend_func=None, linear=True, std_dev=True, abs_diff=None):
+    def distribution(self, data_arg, tend_func=None, linear=True, std_dev=None, abs_diff=None):
         """
         Purpose
         --------

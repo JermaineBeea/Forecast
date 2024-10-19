@@ -2,19 +2,32 @@ import numpy as np
 import pandas as pd
 from DataModification import DataMod
 
-data_mod  = DataMod()
+"""_summary_
+"""
 
 def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **kwargs):
-    
+    """_summary_
+
+    Args:
+        data (_type_): _description_
+        from_value (_type_, optional): _description_. Defaults to None.
+        size_forecast (_type_, optional): _description_. Defaults to None.
+        rel_prob (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        _type_: _description_
+    """
+    data_mod  = DataMod(**kwargs)
+
     #**Kwargs are arguments to be passed to distribution function
-    
+
     from_value = data[-1] if from_value is None else from_value
     size_forecast = len(data) if size_forecast is None else size_forecast
 
     # Get the first oder difference of data
     diff = np.diff(data, n = 1)
     # distribution ouput ->  mean_central_dev, distribution, absolute_probabilities, relative_probabilities
-    distr, absolute_prob, relative_prob= data_mod.distribution(diff, **kwargs)[1:]
+    distr, absolute_prob, relative_prob= data_mod.distribution(diff)[1:]
     probabilities = relative_prob if rel_prob else absolute_prob
 
     mean_lower_bound = np.mean((distr[0], distr[1]))
@@ -36,7 +49,7 @@ if __name__ == '__main__':
     raw_data = pd.read_csv(file_path, sep = '\t')['<CLOSE>'].dropna()
     data = raw_data.to_list()
 
-    forecast = forecastData(data, std_dev = False)
+    forecast = forecastData(data, std_dev = True)
 
     print(forecast)
 
