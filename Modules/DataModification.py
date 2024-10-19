@@ -3,9 +3,9 @@ import unittest
 from collections import Counter
 
 # Toggle to enable unit test execution
-# Toggle to print logs from the binData function
+# Toggle to print logs from the binCounts function
 RUN_UNIT_TESTING = False 
-DISPLAY_LOG_binData = False
+DISPLAY_LOG_binCounts = False
 
 class DataMod:
     """
@@ -25,75 +25,58 @@ class DataMod:
         self.STANDARD_DEVIATION = kwargs.get('std_dev', False)
         self.ABSOLUTE_DIFFERENCE = kwargs.get('abs_diff', True)
 
+    #TODO fix binData
+    def binData(self, bin_ranges, data):
+        ...
+        
 
-    def numRange(self, num, data):
+    def binCounts(self, bin_ranges, data, rnd=None):
         """
         Purpose
-        --------
-        Find the range in a sorted list where the given number lies.
-
-        Args:
-            num (int or float): The number to search for.
-            data (array-like): Sorted array of data to search through.
-
-        Returns:
-            tuple: Index of the lower bound and a tuple of the two bounding values.
-                  Returns None if the number is outside the range.
-        """
-        data = sorted(data)
-        min_data = data[0]
-        max_data = data[-1]
-
-        # If the number is out of bounds, return None
-        if num < min_data or num > max_data:
-            return None
+        ------
         
-        # Special case: if the number equals the minimum or maximum data
-        if num == min_data:
-            idx = 0
-            value_range = min_data, data[1]
-        elif num == max_data:
-            idx = len(data) - 2
-            value_range = data[-2], max_data
-        else:
-            idx = int(np.searchsorted(data, num)) - 1
-            value_range = int(data[idx]), int(data[idx + 1])
-
-        return idx, value_range
-
-
-    def binData(self, bin_ranges, data, rnd=None):
-        """_summary_
+        Bins data into specified ranges and computes statistics for each bin.
 
         Args:
-            bin_ranges (_type_): _description_
-            data (_type_): _description_
-            rnd (_type_, optional): _description_. Defaults to None.
+            bin_ranges (list of float): The boundaries for the bins. 
+                The length of this list should be at least 2.
+            data (list or np.ndarray): The data to be binned.
+            rnd (int, optional): If specified, the number of decimal places to round the results. 
+                Defaults to None.
 
         Returns:
-            _type_: _description_
+            tuple: A tuple containing three lists:
+                - bins_count (list of int): The count of data points in each bin.
+                - bins_abs_factor (list of float): The absolute frequency (proportion) of each bin.
+                - bins_rel_factor (list of float): The relative frequency (proportion) of each bin, 
+                considering only the data points within the overall range of the data.
         """
+        # Ensure data is a NumPy array for easier manipulation
         data = np.array(data) if not isinstance(data, np.ndarray) else data
-        size_bin_ranges = len(bin_ranges) - 1  # Number of bins is one less than number of ranges
-        size_data = len(data)
+        
+        # Number of bins is one less than the number of ranges
+        size_bin_ranges = len(bin_ranges) - 1  
+        size_data = len(data)  # Total number of data points
+        # Count of data points that fall within the range of min and max data values
         size_data_in_range = int(sum((data >= data.min()) & (data <= data.max())))
 
-        # Initialize bin statistics lists
+        # Initialize lists to hold the statistics for each bin
         bins_count = [0] * size_bin_ranges
         bins_abs_factor = [0] * size_bin_ranges
         bins_rel_factor = [0] * size_bin_ranges
 
-        for indx, (range) in enumerate(zip(bin_ranges[: -1], bin_ranges[1:])):
-            count = 0
+        # Iterate over each bin range to count the data points
+        for indx, (range_start, range_end) in enumerate(zip(bin_ranges[:-1], bin_ranges[1:])):
+            count = 0  # Initialize count for the current bin
+            # Check each number in data to see if it falls within the current bin range
             for num in data:
-                if num >= range[0] and num <= range[1]:
-                    count += 1
-                    bins_count[indx] = count
-                    bins_abs_factor[indx] = count/size_data
-                    bins_rel_factor[indx] = count/size_data_in_range
-                else: continue
-            
-        return bins_count, bins_abs_factor, bins_rel_factor
+                if range_start <= num <= range_end:
+                    count += 1  # Increment count if num is within the bin range
+                    bins_count[indx] = count  # Update bin count
+                    bins_abs_factor[indx] = count / size_data  # Calculate absolute frequency
+                    bins_rel_factor[indx] = count / size_data_in_range  # Calculate relative frequency
+
+        return bins_count, bins_abs_factor, bins_rel_factor  # Return the computed statistics
 
 
     def linearise(self, data_arg=None, data_type=float):
@@ -218,7 +201,7 @@ class DataMod:
 
         distribution = sorted([central_tendency - mean_central_dev, central_tendency, central_tendency + mean_central_dev])
 
-        absolute_probabilities, relative_probabilities = self.binData(distribution, data)[1:]
+        absolute_probabilities, relative_probabilities = self.binCounts(distribution, data)[1:]
 
         return mean_central_dev, distribution, absolute_probabilities, relative_probabilities
 
@@ -241,16 +224,17 @@ class DataMod:
         return float(expected_value)
 
 
+#___Unit Testing____#
 class TestDataMod(unittest.TestCase):
 
     def setUp(self):
         """Set up an instance of DataMod with sample data for testing."""
         self.data_mod = DataMod()  
 
-    def test_binData(self):
-        """Test the binData method."""
+    def test_binCounts(self):
+        """Test the binCounts method."""
         args = [1, 2, 3, 4], [1, 1, 2, 2, 3, 3, 4, 4]
-        result = self.data_mod.binData(*args)
+        result = self.data_mod.binCounts(*args)
         expected_result = ([2]*4, [0.5]*4, [3]*4, [4]*4) 
 
         self.assertEqual(result, expected_result)
@@ -264,12 +248,12 @@ if __name__ == '__main__':
 
     data_mod = DataMod()
 
-    data = [1, 1, 1, 1, 1]
+    data = [1, 1, 1, 2, 2, 2, 3, 3]
     bins = [1, 2, 3]
 
-    range = data_mod.binData(bins, data)
+    bin_counts = data_mod.binCounts(bins, data)
 
     print(data)
-    print(range)
+    print(bin_counts)
 
 

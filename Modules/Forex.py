@@ -110,20 +110,17 @@ def assetPrice(asset_symbol, api_url=None):
         print(f"Error fetching asset price: {e}")
         return None
 
-if __name__== '__main_':
+if __name__== '__main__':
     # Example usage
-    source_currency = 'ZAR'       # Source currency (e.g., ZAR)
-    target_currency = 'USD'       # Target currency (e.g., USD)
+    source_currency = 'ZAR'       
+    target_currency = 'USD'       
 
     exchange_rate = exchangeRate(source_currency, target_currency)
 
-    if exchange_rate is not None:
-        print(f"Exchange rate for {target_currency}/{source_currency}: {exchange_rate:.4f}.")
+    print(f"Exchange rate for {target_currency}/{source_currency}: {exchange_rate} .")
 
-    # Example usage
-    asset_symbol = 'AAPL'  # Example asset symbol (e.g., Apple Inc.)
-    asset_price = assetPrice(asset_symbol)
+    # asset_symbol = 'AAPL'  # Example asset symbol (e.g., Apple Inc.)
+    # asset_price = assetPrice(asset_symbol)
 
-    if asset_price is not None:
-        print(f"The current price of {asset_symbol} is ${asset_price:.2f}.")
+    # print(f"The current price of {asset_symbol} is ${asset_price:.2f}.")
 
