@@ -36,6 +36,8 @@ if __name__ == '__main__':
 
     forecast = forecastData(data)
 
+    print(forecast)
+
 
 
 

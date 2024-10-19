@@ -86,37 +86,54 @@ class DataMod:
         """
         Purpose
         --------
-        Generate a linearized form of the input data.
+        Generate a linearized form of the input data with the same size as the input.
 
         Args:
-            data_arg (array-like): Data to be linearized.
-            data_type (type, optional): Data type for linearized data. Defaults to float.
+            data_arg (array-like): Input data to be linearized.
+            data_type (type, optional): Desired data type for the linearized output. Defaults to float.
 
         Returns:
-            list: Linearized sequence of data based on the mean absolute difference.
+            list: A linearized sequence of data points with the same size as the input data.
         
         Raises:
-            ValueError: If no data is provided or if data has insufficient variation.
+            ValueError: If no data is provided for linearization.
+        
+        Description:
+        ------------
+        The function generates a sequence of linearly spaced values between the minimum and maximum
+        of the input data. The size of the output matches the size of the input data.
+        If the mean absolute difference between consecutive elements is zero, the original data
+        is returned as-is.
         """
         if data_arg is None:
             raise ValueError('No data provided for linearization.')
-        
-        data = data_arg
-        
+
+        # Convert input data to a NumPy array for better manipulation
+        data = np.array(data_arg)
+
+        # Calculate minimum and maximum values of the data
         min_data, max_data = min(data), max(data)
+        
+        # Calculate the mean absolute difference between consecutive elements
         mean_abs_diff = np.mean(np.abs(np.diff(data)))
 
+        # Return original data if no variation (mean_abs_diff is 0)
         if mean_abs_diff == 0:
             if DISPLAY_LOG_linear:
                 print(f'From {self.linearise.__name__}\nMean of absolute difference is 0, returned original data as linearised data\n')
             return data
-            
-        linearised_data = list(np.arange(min_data, max_data, mean_abs_diff).astype(data_type))
-        
+
+        # Generate a linearly spaced array with the same number of points as the input data
+        linearised_data = np.linspace(min_data, max_data, num=len(data)).astype(data_type)
+
+        # Display log if enabled
         if DISPLAY_LOG_linear:
-            print(f'LOG OF FUNCTION: {self.linearise.__name__}\nSIZE data: {len(data)}\nTYPE return: {type(linearised_data)}\nSIZE return: {len(linearised_data)}\n')
-        
-        return linearised_data
+            function_name = self.linearise.__name__
+            log_1 = f'MIN data: {min_data}\nMAX data: {max_data}\nMEAN DIFFERENCE:{mean_abs_diff}'
+            log_2 = f'SIZE data: {len(data)}\nTYPE return: {type(linearised_data)}\nSIZE return: {len(linearised_data)}'
+            print(f'LOG OF FUNCTION: {function_name}\n{log_2}\n')
+
+        return list(linearised_data)
 
     def deviation(self, set_1, set_2, std_dev=None, abs_diff=None):
         """
