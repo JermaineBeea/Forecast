@@ -63,54 +63,36 @@ class DataMod:
 
 
     def binData(self, bin_ranges, data, rnd=None):
-        """
-        Purpose
-        --------
-        Bin the input data based on defined bin ranges and calculate bin statistics.
+        """_summary_
 
         Args:
-            bin_ranges (list of int): List of bin boundaries.
-            data (array-like): Input data to be binned.
-            rnd (int, optional): Rounding precision for calculations. Defaults to None.
+            bin_ranges (_type_): _description_
+            data (_type_): _description_
+            rnd (_type_, optional): _description_. Defaults to None.
 
         Returns:
-            tuple:
-                - bins_count (list of int): Count of items in each bin.
-                - bins_abs_factor (list of float): Absolute bin frequency factors.
-                - bins_rel_factor (list of float): Relative bin frequency factors.
+            _type_: _description_
         """
-        bin_count = len(bin_ranges)
+        data = np.array(data) if not isinstance(data, np.ndarray) else data
+        size_bin_ranges = len(bin_ranges) - 1  # Number of bins is one less than number of ranges
         size_data = len(data)
+        size_data_in_range = int(sum((data >= data.min()) & (data <= data.max())))
 
         # Initialize bin statistics lists
-        bins_count = [0] * (bin_count - 1)
-        bins_abs_factor = [0] * (bin_count - 1)
-        bins_rel_factor = [0] * (bin_count - 1)
+        bins_count = [0] * size_bin_ranges
+        bins_abs_factor = [0] * size_bin_ranges
+        bins_rel_factor = [0] * size_bin_ranges
 
-        # Total number of data points within the bin range
-        num_in_bin_range = int(sum((data >= min(bin_ranges)) & (data <= max(bin_ranges))))
-
-        # Count occurrences of each element in the dataset
-        element_counts = Counter(data)
-
-        for value in np.unique(data):
-            bin_index = self.numRange(value, bin_ranges)
+        for indx, (range) in enumerate(zip(bin_ranges[: -1], bin_ranges[1:])):
+            count = 0
+            for num in data:
+                if num >= range[0] and num <= range[1]:
+                    count += 1
+                    bins_count[indx] = count
+                    bins_abs_factor[indx] = count/size_data
+                    bins_rel_factor[indx] = count/size_data_in_range
+                else: continue
             
-            if bin_index is not None: 
-                count = element_counts[value]
-                index = bin_index[0]
-
-                # Update bin statistics
-                bins_count[index] += count
-                bins_abs_factor[index] += count / size_data
-                bins_rel_factor[index] += count / num_in_bin_range
-
-                if DISPLAY_LOG_binData: 
-                    print(f'COUNT AND SIZE : {bins_count}, {size_data}')
-        
-        if DISPLAY_LOG_binData: 
-            print(f'\nbins_count: {bins_count}\nbins_abs_factor: {bins_abs_factor}\nbins_rel_factor: {bins_rel_factor}')
-
         return bins_count, bins_abs_factor, bins_rel_factor
 
 
@@ -138,7 +120,9 @@ class DataMod:
         mean_abs_diff = np.mean(np.abs(np.diff(data)))
 
         if mean_abs_diff == 0:
-            raise ValueError('Insufficient variation in data to compute a meaningful linear form.')
+            print(f'From {self.linearise.__name__}\nMean of absolute difference is 0, returned original data as linearised data\n')
+            return data
+            
 
         return list(np.arange(min_data, max_data, mean_abs_diff).astype(data_type))
 
@@ -241,6 +225,8 @@ class DataMod:
 
     def expectation(self, quantity_events, possible_events, probabilities):
         """
+        Purpose
+        --------
         Compute the expected value of a set of events.
 
         Args:
@@ -278,8 +264,12 @@ if __name__ == '__main__':
 
     data_mod = DataMod()
 
-    data = list(range(1, 10, 1))
+    data = [1, 1, 1, 1, 1]
+    bins = [1, 2, 3]
 
-    distr = data_mod.distribution(data, tend_func=np.mean)
+    range = data_mod.binData(bins, data)
 
-    print(f'Data :{data}\nDistribution {distr}')
+    print(data)
+    print(range)
+
+
