@@ -11,7 +11,6 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True):
 
     # Get the first oder difference of data
     diff = np.diff(data, n = 1)
-
     # distribution ouput ->  mean_central_dev, distribution, absolute_probabilities, relative_probabilities
     distr, absolute_prob, relative_prob= data_mod.distribution(diff)[1:]
     probabilities = relative_prob if rel_prob else absolute_prob
@@ -30,8 +29,13 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True):
 
 
 if __name__ == '__main__':
-    file_path = r''
-    data = pd.read_csv()
+
+    file_path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
+    raw_data = pd.read_csv(file_path, sep = '\t')['<CLOSE>'].dropna()
+    data = raw_data.to_list()
+
+    forecast = forecastData(data)
+
 
 
 

@@ -3,9 +3,12 @@ import unittest
 from collections import Counter
 
 # Toggle to enable unit test execution
-# Toggle to print logs from the binCounts function
+# Toggle to print logs of class functions
 RUN_UNIT_TESTING = False 
 DISPLAY_LOG_binCounts = False
+DISPLAY_LOG_linear = True
+DISPLAY_LOG_deviation = True
+DISPLAY_LOG_distribution = True
 
 class DataMod:
     """
@@ -98,17 +101,22 @@ class DataMod:
         if data_arg is None:
             raise ValueError('No data provided for linearization.')
         
-        data = np.array(data_arg)
-        min_data, max_data = data.min(), data.max()
+        data = data_arg
+        
+        min_data, max_data = min(data), max(data)
         mean_abs_diff = np.mean(np.abs(np.diff(data)))
 
         if mean_abs_diff == 0:
-            print(f'From {self.linearise.__name__}\nMean of absolute difference is 0, returned original data as linearised data\n')
+            if DISPLAY_LOG_linear:
+                print(f'From {self.linearise.__name__}\nMean of absolute difference is 0, returned original data as linearised data\n')
             return data
             
-
-        return list(np.arange(min_data, max_data, mean_abs_diff).astype(data_type))
-
+        linearised_data = list(np.arange(min_data, max_data, mean_abs_diff).astype(data_type))
+        
+        if DISPLAY_LOG_linear:
+            print(f'LOG OF FUNCTION: {self.linearise.__name__}\nSIZE data: {len(data)}\nTYPE return: {type(linearised_data)}\nSIZE return: {len(linearised_data)}\n')
+        
+        return linearised_data
 
     def deviation(self, set_1, set_2, std_dev=None, abs_diff=None):
         """
@@ -134,6 +142,10 @@ class DataMod:
         set_1, set_2 = np.array(set_1), np.array(set_2)
         set_1 = set_1.reshape(-1, 1) if len(set_1) > 1 else set_1
 
+        # set_1 attributes often gives rise bugs and errors
+        if DISPLAY_LOG_deviation:
+            print(f'LOG OF FUNCTION: {self.deviation.__name__}\nTYPE set_1: {type(set_1)}\nSHAPE set_1: {np.shape(set_1)}\nSIZE set_1: {len(set_1)}\n')
+
         # Compute deviations: absolute or normal
         if abs_diff:
             element_wise_deviations = np.abs(set_1 - set_2)
@@ -151,9 +163,10 @@ class DataMod:
         if len(set_1) > 1:
             mean_element_deviations = list(np.mean(element_wise_deviations, axis=0))  
             index_min_deviation = np.where(mean_element_deviations == min(mean_element_deviations))
-            central_tendency = set_1[:, 0][index_min_deviation]
+            central_tendency = set_1[index_min_deviation]
         else:
             central_tendency = set_1[0]
+
 
         return central_tendency, float(mean_element_wise_deviations), list(element_wise_deviations)
 
@@ -190,7 +203,7 @@ class DataMod:
 
         data = self.data if data_arg is None else np.array(data_arg)
         data_1 = self.linearise(data) if linear else data
-
+       
         if tend_func.__name__ != self.deviation.__name__:
             central_tendency = tend_func(data)
         else:
