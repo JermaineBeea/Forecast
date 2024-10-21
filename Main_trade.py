@@ -2,6 +2,7 @@
 import os
 import json
 import pandas as pd
+import numpy as np
 from Modules.Forecast import forecastData
 from Modules.Forex import exchangeRate
 
@@ -22,7 +23,7 @@ currency_investment = 'ZAR'
 currency_profit = 'ZAR'
 interval = 'hrs'
 spread = 0.00042
-sample_investment = 10000
+sample_investment = 1000
 round_num = True
 rnd = 5
 scientific_notation = False
@@ -39,6 +40,7 @@ current_rate = data[-1]
 period = len(data)
 distr_forecast = forecast_function(data, current_rate, period=period)
 min_closing_rate, closing_rate, max_closing_rate = distr_forecast
+# median_distr = np.mean(min_closing_rate, closing_rate), np.mean
 
 # Immediate risk factor
 factor_immediate_risk = current_rate / (current_rate + spread) - 1
