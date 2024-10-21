@@ -40,7 +40,13 @@ current_rate = data[-1]
 period = len(data)
 distr_forecast = forecast_function(data, current_rate, period=period)
 min_closing_rate, closing_rate, max_closing_rate = distr_forecast
-# median_distr = np.mean(min_closing_rate, closing_rate), np.mean
+distr_forecast = [
+    min_closing_rate, 
+    float(np.mean([min_closing_rate, closing_rate])), 
+    closing_rate, 
+    float(np.mean([closing_rate, max_closing_rate])),
+    max_closing_rate 
+]
 
 # Immediate risk factor
 factor_immediate_risk = current_rate / (current_rate + spread) - 1
@@ -91,6 +97,8 @@ variables = {
     'distr_closing_rate': distr_forecast,
     'distr_profit_factor': distr_profit_factor,
     'sample_profit_distr': sample_profit_distr,
+    'expectation_closing_rate': closing_rate,
+    'expectation_sample_profit': sample_profit_distr[len(sample_profit_distr)//2],
     'sample_max_potential_loss': sample_max_potential_loss
 }
 
@@ -132,7 +140,7 @@ if (over_write_file and file_found) or not file_found:
                             (f'{val:e}' if scientific_notation and isinstance(val, (int, float)) else str(val))
                         )
                     file.write(f'{key} = {formatted_val}\n')
-                    if key in ('currency_profit', 'rate_opening', 'sample_immediate_risk'):
+                    if key in ('currency_profit', 'rate_opening', 'sample_immediate_risk', 'sample_profit_distr'):
                         file.write('\n')
 
     except FileExistsError:

@@ -38,8 +38,8 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
 
     # Compute diff expectation 
     diff_expectation = data_mod.expectation(size_forecast, [mean_lower_bound, mean_upper_bound], [prob_lower_bound, prob_upper_bound])
-    min_diff_expectation = mean_lower_bound*size_forecast
-    max_diff_expectation = mean_upper_bound*size_forecast
+    min_diff_expectation = float(mean_lower_bound*size_forecast)
+    max_diff_expectation = float(mean_upper_bound*size_forecast)
 
     forecast_distr = [from_value + min_diff_expectation, from_value + diff_expectation, from_value + max_diff_expectation]
 
