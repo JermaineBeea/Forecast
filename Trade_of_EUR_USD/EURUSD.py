@@ -5,34 +5,34 @@
     "currency_profit": "\"ZAR\"",
     "forecast_function": "\"forecastData\"",
     "forecast_period_in_hrs": 492,
-    "spread": 0.00042,
+    "price_spread": 0.00042,
     "ZAR_to_USD": 0.05685,
-    "rate_opening": 1.08284,
-    "SAMPLE_INVESTMENT": 1000,
-    "factor_immediate_risk": -0.00039,
-    "sample_immediate_risk": -0.38806,
-    "distr_closing_rate": [
-        0.84844,
-        0.97647,
-        1.10451,
-        1.17732,
-        1.25013
+    "rate_opening": 1.08272,
+    "initial_investment": 1000,
+    "immediate_risk_factor": -0.00039,
+    "sample_immediate_risk": -0.3881,
+    "forecast_closing_rates": [
+        0.84814,
+        0.97621,
+        1.10429,
+        1.17713,
+        1.24996
     ],
-    "distr_profit_factor": [
-        -0.21677,
-        -0.09858,
-        0.01962,
-        0.08683,
-        0.15405
+    "profit_distribution_factors": [
+        -0.21696,
+        -0.09872,
+        0.01953,
+        0.08677,
+        0.15402
     ],
-    "sample_profit_distr": [
-        -216.95968,
-        -98.66254,
-        19.6346,
-        86.90901,
-        154.18343
+    "sample_profit_distribution": [
+        -217.15339,
+        -98.8041,
+        19.5452,
+        86.84926,
+        154.15333
     ],
-    "expectation_closing_rate": 1.10451,
-    "expectation_sample_profit": 19.6346,
-    "sample_max_potential_loss": -216.95968
+    "expected_closing_rate": 1.10429,
+    "expected_sample_profit": 19.5452,
+    "sample_max_possible_loss": -217.15339
 }
