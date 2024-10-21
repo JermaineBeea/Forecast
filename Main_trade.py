@@ -15,6 +15,10 @@ def format_value(val):
             return f'{val:e}'
     return val
 
+np.set_printoptions(threshold=np.inf)
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_seq_items', None)
 
 # 2. Constants and Configurations
 currency_sell = 'EUR'
@@ -29,7 +33,7 @@ sample_investment = 1000
 use_external_date = True
 write_external_data = True
 binary_format = False 
-json_format = True
+json_format = False
 
 # Toggles to format variables
 round_num = True
@@ -38,7 +42,7 @@ scientific_notation = False
 
 # Toggles for writing variables
 over_write_file = True
-write_to_json = False
+write_to_json = True
 
 path_local_data = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
 path_trade_folder = f'Trade_of_{currency_sell}_{currency_buy}/'
@@ -55,7 +59,7 @@ if use_external_date:
 
 if write_external_data:
     # Open the file in binary mode if using pickle
-    prefix = '.json' if json_format else '.pkl' if binary_format else '.py'
+    prefix = '.json' if json_format else '.pkl' if binary_format else '.csv'
     mode = 'wb' if binary_format else 'w'
     with open(f'{path_trade_folder}{name_external_data}{prefix}', mode=mode) as file:
         if json_format:
@@ -63,9 +67,10 @@ if write_external_data:
         elif binary_format:
             pickle.dump(data, file)
         else:  
-            file.write(str(data))
+            file.write(str(raw_data))
 else:
     raw_data = pd.read_csv(path_local_data, sep='\t')['<CLOSE>'].dropna()
+    data = raw_data.to_list()
 
 
 # Forecast calculation
