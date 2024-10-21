@@ -24,18 +24,25 @@ currency_profit = 'ZAR'
 interval = 'hrs'
 spread = 0.00042
 sample_investment = 1000
+
+# Toggles concernign writing external data
 use_external_date = True
 write_external_data = True
-binary_format = False # For writing of external data
+binary_format = False 
+json_format = True
+
+# Toggles to format variables
 round_num = True
 rnd = 5
 scientific_notation = False
+
+# Toggles for writing variables
 over_write_file = True
 write_to_json = False
 
 path_local_data = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
 path_trade_folder = f'Trade_of_{currency_sell}_{currency_buy}/'
-name_trade_file = f'{path_trade_folder}{currency_sell}{currency_buy}.py'
+name_variable_file = f'{path_trade_folder}{currency_sell}{currency_buy}.py'
 name_external_data = f'{currency_sell}{currency_buy}_data'
 
 # Ensure directory exists
@@ -48,12 +55,15 @@ if use_external_date:
 
 if write_external_data:
     # Open the file in binary mode if using pickle
+    prefix = '.json' if json_format else '.pkl' if binary_format else '.py'
     mode = 'wb' if binary_format else 'w'
-    with open(f'{path_trade_folder}{name_external_data}', mode=mode) as file:
-        if binary_format:
-            pickle.dump(data, file)
-        else:
+    with open(f'{path_trade_folder}{name_external_data}{prefix}', mode=mode) as file:
+        if json_format:
             json.dump(data, file)
+        elif binary_format:
+            pickle.dump(data, file)
+        else:  
+            file.write(str(data))
 else:
     raw_data = pd.read_csv(path_local_data, sep='\t')['<CLOSE>'].dropna()
 
@@ -132,7 +142,7 @@ formatted_variables = {key: [format_value(v) for v in val] if isinstance(val, li
 # Check if file exists
 file_found = False
 try:
-    with open(name_trade_file):
+    with open(name_variable_file):
         file_found = True
 except FileNotFoundError:
     pass
@@ -141,10 +151,10 @@ except FileNotFoundError:
 if (over_write_file and file_found) or not file_found:
     try:
         if write_to_json:
-            with open(name_trade_file, mode='x' if not over_write_file else 'w') as file:
+            with open(name_variable_file, mode='x' if not over_write_file else 'w') as file:
                 json.dump(formatted_variables, file, indent=4)
         else:
-            with open(name_trade_file, mode='x' if not over_write_file else 'w') as file:
+            with open(name_variable_file, mode='x' if not over_write_file else 'w') as file:
                 for key, val in variables.items():
                     if isinstance(val, list):
                         formatted_val = ', '.join(
@@ -162,4 +172,4 @@ if (over_write_file and file_found) or not file_found:
                         file.write('\n')
 
     except FileExistsError:
-        print(f"File '{name_trade_file}' already exists. Set over_write_file to True if you want to overwrite it.")
+        print(f"File '{name_variable_file}' already exists. Set over_write_file to True if you want to overwrite it.")
