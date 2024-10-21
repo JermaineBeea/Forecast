@@ -55,7 +55,6 @@ os.makedirs(os.path.dirname(path_trade_folder), exist_ok=True) if os.path.dirnam
 # 3. Data Loading and Setup
 if use_external_date:
     raw_data = get_conversion_rate(currency_sell, currency_buy, period='1mo', interval='1h')['Close']
-    data = raw_data.to_list()
 
 if write_external_data:
     # Open the file in binary mode if using pickle
@@ -63,14 +62,15 @@ if write_external_data:
     mode = 'wb' if binary_format else 'w'
     with open(f'{path_trade_folder}{name_external_data}{prefix}', mode=mode) as file:
         if json_format:
-            json.dump(data, file)
+            json.dump(raw_data.to_list(), file)
         elif binary_format:
-            pickle.dump(data, file)
+            pickle.dump(raw_data, file)
         else:  
             file.write(str(raw_data))
 else:
     raw_data = pd.read_csv(path_local_data, sep='\t')['<CLOSE>'].dropna()
-    data = raw_data.to_list()
+
+data = raw_data.to_list()
 
 
 # Forecast calculation
