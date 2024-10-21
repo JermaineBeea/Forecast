@@ -1,0 +1,137 @@
+# 1. Import Statements
+import os
+import json
+import pandas as pd
+from Modules.Forecast import forecastData
+from Modules.Forex import exchangeRate
+
+def format_value(val):
+    if isinstance(val, (int, float)):
+        if round_num:
+            val = round(val, rnd)
+        if scientific_notation:
+            return f'{val:e}'
+    return val
+
+
+# 2. Constants and Configurations
+file_path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
+currency_sell = 'EUR'
+currency_buy = 'AUD'
+currency_investment = 'ZAR'
+currency_profit = 'ZAR'
+interval = 'hrs'
+spread = 0.00042
+sample_investment = 10000
+round_num = True
+rnd = 5
+scientific_notation = False
+over_write_file = True
+write_to_json = False
+
+# 3. Data Loading and Setup
+raw_data = pd.read_csv(file_path, sep='\t')['<CLOSE>'].dropna()
+data = raw_data.to_list()
+
+# Forecast calculation
+forecast_function = forecastData
+current_rate = data[-1]
+period = len(data)
+distr_forecast = forecast_function(data, current_rate, period=period)
+min_closing_rate, closing_rate, max_closing_rate = distr_forecast
+
+# Immediate risk factor
+factor_immediate_risk = current_rate / (current_rate + spread) - 1
+
+# 4. Trade Action Logic
+if closing_rate < current_rate - spread:
+    trade_action = f'SELL {currency_sell}/{currency_buy}'
+    currency_a = currency_sell
+    currency_b = currency_buy
+    distr_profit_factor = [
+        current_rate / (closing_rate + spread) - 1 for closing_rate in distr_forecast
+    ]
+elif closing_rate > current_rate + spread:
+    trade_action = f'BUY {currency_buy}/{currency_sell}'
+    currency_a = currency_buy
+    currency_b = currency_sell
+    distr_profit_factor = [
+        closing_rate / (current_rate + spread) - 1 for closing_rate in distr_forecast
+    ]
+
+# 5. Exchange Rate Calculations
+rate_inv_a = exchangeRate(currency_investment, currency_a)
+rate_a_profit = exchangeRate(currency_a, currency_profit)
+
+# Sample investment calculations
+sample_risk = sample_investment * rate_inv_a * rate_a_profit * factor_immediate_risk
+sample_profit_distr = [
+    sample_investment * rate_inv_a * rate_a_profit * profit_factor
+    for profit_factor in distr_profit_factor
+]
+sample_max_potential_loss = min(sample_profit_distr)
+
+# 6. Output Preparation
+variables = {
+    'rate_given': f'"{currency_sell}/{currency_buy}"',
+    'trade_action': f'"{trade_action}"',
+    'currency_investment': f'"{currency_investment}"',
+    'currency_profit': f'"{currency_profit}"',
+    'forecast_function': f'"{forecast_function.__name__}"',
+    f'forecast_period_in_{interval}': period,
+    'spread': spread,
+    f'{currency_investment}_to_{currency_a}': rate_inv_a,
+    f'{currency_profit}_to_{currency_a}': 1 / rate_a_profit,
+    'rate_opening': current_rate,
+    'SAMPLE_INVESTMENT': sample_investment,
+    'factor_immediate_risk': factor_immediate_risk,
+    'sample_immediate_risk': sample_risk,
+    'distr_closing_rate': distr_forecast,
+    'distr_profit_factor': distr_profit_factor,
+    'sample_profit_distr': sample_profit_distr,
+    'sample_max_potential_loss': sample_max_potential_loss
+}
+
+# Format values for output
+formatted_variables = {key: [format_value(v) for v in val] if isinstance(val, list) else format_value(val) for key, val in variables.items()}
+
+# 7. File Writing Logic
+write_to_file = f'Trade_of_{currency_sell}_{currency_buy}/{currency_sell}{currency_buy}.py'
+
+# Ensure directory exists
+os.makedirs(os.path.dirname(write_to_file), exist_ok=True) if os.path.dirname(write_to_file) else None
+
+# Check if file exists
+file_found = False
+try:
+    with open(write_to_file):
+        file_found = True
+except FileNotFoundError:
+    pass
+
+# Write to file based on conditions
+if (over_write_file and file_found) or not file_found:
+    try:
+        if write_to_json:
+            with open(write_to_file, mode='x' if not over_write_file else 'w') as file:
+                json.dump(formatted_variables, file, indent=4)
+        else:
+            with open(write_to_file, mode='x' if not over_write_file else 'w') as file:
+                for key, val in variables.items():
+                    if isinstance(val, list):
+                        formatted_val = ', '.join(
+                            f'{round(v, rnd) if round_num else (f"{v:e}" if scientific_notation else v)}'
+                            if isinstance(v, (int, float)) else str(v)
+                            for v in val)
+                        formatted_val = f'[{formatted_val}]'
+                    else:
+                        formatted_val = (
+                            f'{round(val, rnd)}' if round_num and isinstance(val, (int, float)) else
+                            (f'{val:e}' if scientific_notation and isinstance(val, (int, float)) else str(val))
+                        )
+                    file.write(f'{key} = {formatted_val}\n')
+                    if key in ('currency_profit', 'rate_opening', 'sample_immediate_risk'):
+                        file.write('\n')
+
+    except FileExistsError:
+        print(f"File '{write_to_file}' already exists. Set over_write_file to True if you want to overwrite it.")
