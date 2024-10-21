@@ -1,10 +1,11 @@
 # 1. Import Statements
 import os
 import json
+import pickle
 import pandas as pd
 import numpy as np
 from Modules.Forecast import forecastData
-from Modules.Forex import exchangeRate
+from Modules.Forex import exchangeRate, get_conversion_rate
 
 def format_value(val):
     if isinstance(val, (int, float)):
@@ -16,23 +17,46 @@ def format_value(val):
 
 
 # 2. Constants and Configurations
-file_path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
 currency_sell = 'EUR'
-currency_buy = 'AUD'
+currency_buy = 'USD'
 currency_investment = 'ZAR'
 currency_profit = 'ZAR'
 interval = 'hrs'
 spread = 0.00042
 sample_investment = 1000
+use_external_date = True
+write_external_data = True
+binary_format = False # For writing of external data
 round_num = True
 rnd = 5
 scientific_notation = False
 over_write_file = True
 write_to_json = False
 
+path_local_data = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
+path_trade_folder = f'Trade_of_{currency_sell}_{currency_buy}/'
+name_trade_file = f'{path_trade_folder}{currency_sell}{currency_buy}.py'
+name_external_data = f'{currency_sell}{currency_buy}_data'
+
+# Ensure directory exists
+os.makedirs(os.path.dirname(path_trade_folder), exist_ok=True) if os.path.dirname(path_trade_folder) else None
+
 # 3. Data Loading and Setup
-raw_data = pd.read_csv(file_path, sep='\t')['<CLOSE>'].dropna()
-data = raw_data.to_list()
+if use_external_date:
+    raw_data = get_conversion_rate(currency_sell, currency_buy, period='1mo', interval='1h')['Close']
+    data = raw_data.to_list()
+
+if write_external_data:
+    # Open the file in binary mode if using pickle
+    mode = 'wb' if binary_format else 'w'
+    with open(f'{path_trade_folder}{name_external_data}', mode=mode) as file:
+        if binary_format:
+            pickle.dump(data, file)
+        else:
+            json.dump(data, file)
+else:
+    raw_data = pd.read_csv(path_local_data, sep='\t')['<CLOSE>'].dropna()
+
 
 # Forecast calculation
 forecast_function = forecastData
@@ -53,14 +77,14 @@ factor_immediate_risk = current_rate / (current_rate + spread) - 1
 
 # 4. Trade Action Logic
 if closing_rate < current_rate - spread:
-    trade_action = f'SELL {currency_sell}/{currency_buy}'
+    trade_action = f'SELL {currency_sell}{currency_buy}'
     currency_a = currency_sell
     currency_b = currency_buy
     distr_profit_factor = [
         current_rate / (closing_rate + spread) - 1 for closing_rate in distr_forecast
     ]
 elif closing_rate > current_rate + spread:
-    trade_action = f'BUY {currency_buy}/{currency_sell}'
+    trade_action = f'BUY {currency_buy}{currency_sell}'
     currency_a = currency_buy
     currency_b = currency_sell
     distr_profit_factor = [
@@ -81,7 +105,7 @@ sample_max_potential_loss = min(sample_profit_distr)
 
 # 6. Output Preparation
 variables = {
-    'rate_given': f'"{currency_sell}/{currency_buy}"',
+    'rate_given': f'"{currency_sell}{currency_buy}"',
     'trade_action': f'"{trade_action}"',
     'currency_investment': f'"{currency_investment}"',
     'currency_profit': f'"{currency_profit}"',
@@ -105,16 +129,10 @@ variables = {
 # Format values for output
 formatted_variables = {key: [format_value(v) for v in val] if isinstance(val, list) else format_value(val) for key, val in variables.items()}
 
-# 7. File Writing Logic
-write_to_file = f'Trade_of_{currency_sell}_{currency_buy}/{currency_sell}{currency_buy}.py'
-
-# Ensure directory exists
-os.makedirs(os.path.dirname(write_to_file), exist_ok=True) if os.path.dirname(write_to_file) else None
-
 # Check if file exists
 file_found = False
 try:
-    with open(write_to_file):
+    with open(name_trade_file):
         file_found = True
 except FileNotFoundError:
     pass
@@ -123,10 +141,10 @@ except FileNotFoundError:
 if (over_write_file and file_found) or not file_found:
     try:
         if write_to_json:
-            with open(write_to_file, mode='x' if not over_write_file else 'w') as file:
+            with open(name_trade_file, mode='x' if not over_write_file else 'w') as file:
                 json.dump(formatted_variables, file, indent=4)
         else:
-            with open(write_to_file, mode='x' if not over_write_file else 'w') as file:
+            with open(name_trade_file, mode='x' if not over_write_file else 'w') as file:
                 for key, val in variables.items():
                     if isinstance(val, list):
                         formatted_val = ', '.join(
@@ -144,4 +162,4 @@ if (over_write_file and file_found) or not file_found:
                         file.write('\n')
 
     except FileExistsError:
-        print(f"File '{write_to_file}' already exists. Set over_write_file to True if you want to overwrite it.")
+        print(f"File '{name_trade_file}' already exists. Set over_write_file to True if you want to overwrite it.")
