@@ -6,9 +6,9 @@ from collections import Counter
 # Toggle to print logs of class functions
 RUN_UNIT_TESTING = False 
 DISPLAY_LOG_binCounts = False
-DISPLAY_LOG_linear = True
-DISPLAY_LOG_deviation = True
-DISPLAY_LOG_distribution = True
+DISPLAY_LOG_linear = False
+DISPLAY_LOG_deviation = False
+DISPLAY_LOG_distribution = False
 
 class DataMod:
     """

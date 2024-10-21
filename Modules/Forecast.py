@@ -1,9 +1,9 @@
+import os
 import numpy as np
 import pandas as pd
-from DataModification import DataMod
+from Modules.DataModification import DataMod
+from Modules.Forex import exchangeRate
 
-"""_summary_
-"""
 
 def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **kwargs):
     """_summary_
@@ -38,32 +38,31 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
 
     # Compute diff expectation 
     diff_expectation = data_mod.expectation(size_forecast, [mean_lower_bound, mean_upper_bound], [prob_lower_bound, prob_upper_bound])
-    forecast = from_value + diff_expectation
+    lower_bound_change = float(mean_lower_bound*size_forecast)
+    mean_upper_bound = float(mean_upper_bound*size_forecast)
 
-    return forecast
+    forecast_distr = [from_value + lower_bound_change, from_value + diff_expectation, from_value + mean_upper_bound]
+
+    return forecast_distr
 
 
 if __name__ == '__main__':
-
-    file_path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
-    raw_data = pd.read_csv(file_path, sep = '\t')['<CLOSE>'].dropna()
-    data = raw_data.to_list()
-
-    forecast = forecastData(data, std_dev = False)
-
-    print(forecast)
+    ...
 
 
 
 
 
-    
 
 
-  
 
-
+        
 
 
     
+
+
+
+
+        
 
