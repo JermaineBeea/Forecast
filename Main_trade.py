@@ -44,7 +44,7 @@ use_scientific_notation = False
 
 # Toggles for writing output variables
 allow_file_overwrite = True
-save_to_json = True
+save_to_json = False
 
 # File paths
 local_data_path = r'/home/wtc/Documents/RepositoryAccounts/Personal_GitHUb/Forecast/Trade Data/EURAUD.ifx.csv'
