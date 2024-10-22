@@ -41,7 +41,7 @@ allow_file_overwrite = True
 save_to_json = False
 
 # Determine if trading an asset or a forex currency
-asset_trading = True
+asset_trading = False
 
 # 3. Constants: Trading settings
 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
