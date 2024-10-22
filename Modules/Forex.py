@@ -5,16 +5,19 @@ import requests
 
 def get_conversion_rate(
     from_currency: str, to_currency: str,
-    from_date=None, end_date=None,
-    period: str = None, interval: str = None,
+    start_date=None, end_date=None,
+    period : str = None, interval: str = None
     ) -> float:
     """
     Fetches the conversion rate between two currencies using Yahoo Finance.
-
+    
+    :param period: ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+    :param interval:  [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]
     :param from_currency: The base currency code (e.g., 'USD').
     :param to_currency: The target currency code (e.g., 'EUR').
     :return: Conversion rate as a float.
     """
+    
     # Create the currency pair symbol, e.g., 'USDEUR=X'
     pair_symbol = f"{from_currency}{to_currency}=X"
 
@@ -23,17 +26,17 @@ def get_conversion_rate(
 
     # Get the last price (conversion rate)
     # Get the last price (conversion rate)
-    if period and not (from_date and end_date):
+    if period and not (start_date and end_date):
         rate = (
             ticker.history(period=period, interval=interval)
             if interval
             else ticker.history(period=period)
         )
-    elif from_date and end_date:
+    elif start_date and end_date:
         rate = (
-            ticker.history(start=from_date, end=end_date, interval=interval)
+            ticker.history(start=start_date, end=end_date, interval=interval)
             if interval
-            else ticker.history(start=from_date, end=end_date)
+            else ticker.history(start=start_date, end=end_date)
         )
     else:
         rate = ticker.history()
@@ -42,14 +45,16 @@ def get_conversion_rate(
 
 def get_asset_price(
     ticker_symbol: str,
-    from_date=None,end_date=None,
+    start_date=None,end_date=None,
     period: str = None, interval: str = None,
     ) -> float:
     """
     Fetches the latest price of a specified asset using Yahoo Finance.
 
+    :param period: ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+    :param interval:  [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]
     :param ticker_symbol: The stock ticker symbol (e.g., 'TSLA').
-    :param from_date: Start date for historical data (optional).
+    :param start_date: Start date for historical data (optional).
     :param end_date: End date for historical data (optional).
     :param period: Period for historical data (optional).
     :param interval: Interval for historical data (optional).
@@ -59,17 +64,17 @@ def get_asset_price(
     ticker = yf.Ticker(ticker_symbol)
 
     # Get the last price
-    if period and not (from_date and end_date):
+    if period and not (start_date and end_date):
         price_data = (
             ticker.history(period=period, interval=interval)
             if interval
             else ticker.history(period=period)
         )
-    elif from_date and end_date:
+    elif start_date and end_date:
         price_data = (
-            ticker.history(start=from_date, end=end_date, interval=interval)
+            ticker.history(start=start_date, end=end_date, interval=interval)
             if interval
-            else ticker.history(start=from_date, end=end_date)
+            else ticker.history(start=start_date, end=end_date)
         )
     else:
         price_data = ticker.history()
