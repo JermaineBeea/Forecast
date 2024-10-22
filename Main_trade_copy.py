@@ -45,11 +45,11 @@ asset_trading = False
 
 # 3. Constants: Trading settings
 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-sell_unit = 'EUR'
-buy_unit = 'ZAR' if not asset_trading else 'USD'
-currency_investment = 'ZAR'
+sell_unit = 'GBP'
+buy_unit = 'USD' if not asset_trading else 'USD'
+currency_investment = 'GBP' if not asset_trading else 'USD'
 profit_currency = 'ZAR'
-price_spread = 0.0252
+price_spread = 0.00014
 borrowing_fee = 0
 initial_investment = 1000
 
@@ -126,7 +126,7 @@ forecast_distribution = [
 ]
 
 # Calculate immediate risk factor
-immediate_risk_factor = current_exchange_rate / (current_exchange_rate + price_spread) - 1
+immediate_risk_factor = current_exchange_rate/(current_exchange_rate + price_spread) - 1
 
 
 # 7. Trade Action Logic: Determine trade action based on forecast
