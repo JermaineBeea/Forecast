@@ -40,7 +40,7 @@ FORECAST_FUNCTION = forecastData
 
 ###__FORECAST DISTRIBUTION__###
 
-current_rate = get_conversion_rate(currency_sell, currency_buy)['Close'].dropna().iloc[-1]
+current_rate = data[-1]
 size_forecast = len(data)
 distr_forecast = FORECAST_FUNCTION(data, current_rate,size_forecast)
 min_forecast, forecast, max_forecast = distr_forecast
