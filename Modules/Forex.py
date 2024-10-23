@@ -1,5 +1,6 @@
 import yfinance as yf
 import requests
+import pandas as pd
 
 # Using Yahho Finance
 
@@ -44,7 +45,7 @@ def get_conversion_rate(
     return rate
 
 def get_asset_price(
-    ticker_symbol: str,
+    asset: str,
     start_date=None,end_date=None,
     period: str = None, interval: str = None,
     ) -> float:
@@ -53,7 +54,7 @@ def get_asset_price(
 
     :param period: ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
     :param interval:  [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]
-    :param ticker_symbol: The stock ticker symbol (e.g., 'TSLA').
+    :param asset: The stock ticker symbol (e.g., 'TSLA').
     :param start_date: Start date for historical data (optional).
     :param end_date: End date for historical data (optional).
     :param period: Period for historical data (optional).
@@ -61,7 +62,7 @@ def get_asset_price(
     :return: Latest price as a float.
     """
     # Fetch the ticker data for the asset
-    ticker = yf.Ticker(ticker_symbol)
+    ticker = yf.Ticker(asset)
 
     # Get the last price
     if period and not (start_date and end_date):
@@ -78,8 +79,26 @@ def get_asset_price(
         )
     else:
         price_data = ticker.history()
-
+    
     return price_data
+    
+def get_forex_asset(
+    asset: str,
+    currency: str,
+    ) -> float:
+    """
+    Converts asset to forex using 'USD' as base
+    """
+
+    if currency == 'USD': 
+        return yf.Ticker(asset).history()
+    
+    # Fetch the ticker data for the asset
+    rate_usd_currency = get_conversion_rate('USD',currency)['Close'].iloc[-1]
+    data_ticker = yf.Ticker(asset).history()
+    data_converted = data_ticker * rate_usd_currency
+
+    return data_converted
 
 
 # Using API
@@ -129,15 +148,10 @@ def assetPrice(asset_symbol, api_url=None):
 
 if __name__== '__main__':
     # Example usage
-    source_currency = 'ZAR'       
-    target_currency = 'USD'       
+ 
+    asset = 'TSLA'
+    currency = 'EUR'
 
-    exchange_rate = exchangeRate(source_currency, target_currency)
-
-    print(f"Exchange rate for {target_currency}/{source_currency}: {exchange_rate} .")
-
-    # asset_symbol = 'AAPL'  # Example asset symbol (e.g., Apple Inc.)
-    # asset_price = assetPrice(asset_symbol)
-
-    # print(f"The current price of {asset_symbol} is ${asset_price:.2f}.")
-
+    result = get_forex_asset(asset, currency)
+    # result = get_conversion_rate('USD', 'EUR')
+    print(result)
