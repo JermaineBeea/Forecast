@@ -18,7 +18,7 @@ def get_conversion_rate(
     :param to_currency: The target currency code (e.g., 'EUR').
     :return: Conversion rate as a float.
     """
-    
+
     # Create the currency pair symbol, e.g., 'USDEUR=X'
     pair_symbol = f"{from_currency}{to_currency}=X"
 
