@@ -53,14 +53,14 @@ if forecast < current_rate - spread:
     action = 'sell'
     unit_a = currency_sell
     distr_profit_factor = [current_rate / (n + spread) - (1 + borrowing_fee) for n in distr_forecast]
-# end
+# -----
 
 # Condition to Buy
 elif forecast > current_rate + spread:
     action = 'buy'
     unit_a = currency_buy
     distr_profit_factor = [n / (current_rate + spread) - 1 for n in distr_forecast]
-# end 
+# -----
 
 # Toggle to determine if trade amount is in sell units
 amount_in_sell_units = True
