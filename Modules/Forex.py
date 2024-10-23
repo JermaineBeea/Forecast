@@ -147,11 +147,14 @@ def assetPrice(asset_symbol, api_url=None):
         return None
 
 if __name__== '__main__':
-    # Example usage
  
-    asset = 'TSLA'
-    currency = 'EUR'
 
-    result = get_forex_asset(asset, currency)
-    # result = get_conversion_rate('USD', 'EUR')
-    print(result)
+ unit_a = 'USD'
+ unit_b = 'TSLA'
+ pair_symbol = unit_a + unit_b
+
+ticker = yf.Ticker(pai)
+
+
+
+  

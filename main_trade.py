@@ -20,12 +20,15 @@ pd.set_option('display.max_seq_items', None)
 # 3. Constants & Trading settings
 current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 sell_unit = 'USD'
-buy_unit = 'ZAR'
+buy_unit = 'NOK'
 currency_investment = 'ZAR'
 profit_currency = currency_investment
-spread = 0.00298
+spread = 0.0047
 borrowing_fee = 0
 investment_amount = 1000
+
+# Period valid - ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+# Interval valid - [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]
 
 param_period = {
     'start_date': None,
@@ -33,7 +36,6 @@ param_period = {
     'period': '1d',
     'interval': '1m'
 }
-
 
 # 4. Data Loading: Fetch or load data
 fetch_external_data = True
