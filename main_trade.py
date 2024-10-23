@@ -19,11 +19,11 @@ pd.set_option('display.max_seq_items', None)
 
 # 3. Constants & Trading settings
 current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-sell_unit = 'USD'
-buy_unit = 'NOK'
+sell_unit = 'GBP'
+buy_unit = 'JPY'
 currency_investment = 'ZAR'
 profit_currency = currency_investment
-spread = 0.0047
+spread = 0.044
 borrowing_fee = 0
 investment_amount = 1000
 
@@ -33,7 +33,7 @@ investment_amount = 1000
 param_period = {
     'start_date': None,
     'end_date': None,
-    'period': '1d',
+    'period': '5d',
     'interval': '1m'
 }
 
@@ -73,8 +73,9 @@ data = raw_data['Close'].to_list()
 
 ###____TRADE SECTION____###
 
-current_rate = data[-1]
-size_forecast = len(data)
+# current_rate = data[-1]
+current_rate = exchangeRate(sell_unit, buy_unit)
+size_forecast = len(data)//3
 
 # 1. Forecast Calculation
 FORECAST_FUNCTION = forecastData
@@ -142,6 +143,7 @@ for key, val in param_period.items():
     output_variables[key] = f"'{val}'"
 
 output_variables.update({
+    'data_size': len(data),
     'forecast_size': size_forecast,
     'price_spread': spread,
     'borrowing_fee': borrowing_fee,

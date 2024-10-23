@@ -149,11 +149,13 @@ def assetPrice(asset_symbol, api_url=None):
 if __name__== '__main__':
  
 
- unit_a = 'USD'
- unit_b = 'TSLA'
- pair_symbol = unit_a + unit_b
+    unit_a = 'USD'
+    unit_b = 'ZAR'
+    pair_symbol = unit_a + unit_b
 
-ticker = yf.Ticker(pai)
+    result = exchangeRate(unit_a, unit_b)
+    print(result)
+
 
 
 

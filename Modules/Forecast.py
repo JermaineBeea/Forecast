@@ -34,7 +34,9 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
     mean_upper_bound = np.mean((distr[1], distr[2]))
 
     prob_lower_bound = probabilities[0]
-    prob_upper_bound =  1 - prob_lower_bound
+    prob_upper_bound =  probabilities[1]
+
+    print(f'TEST PROBABILITY low:{prob_lower_bound}\n high: {prob_upper_bound}')
 
     # Compute diff expectation 
     diff_expectation = data_mod.expectation(size_forecast, [mean_lower_bound, mean_upper_bound], [prob_lower_bound, prob_upper_bound])

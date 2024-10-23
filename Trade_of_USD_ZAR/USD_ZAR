@@ -1,38 +1,39 @@
 {
     "rate_given": "\"USDZAR\"",
-    "time_of_trade": "'2024-10-23 16:25:36'",
+    "time_of_trade": "'2024-10-23 17:25:23'",
     "trade_action": "\"buy\"",
     "currency_investment": "\"ZAR\"",
     "Forecast_Function": "\"forecastData\"",
     "start_date": "'None'",
     "end_date": "'None'",
-    "period": "'1d'",
+    "period": "'5d'",
     "interval": "'1m'",
-    "forecast_size": 926,
-    "price_spread": 0.00298,
+    "data_size": 6563,
+    "forecast_size": 2187,
+    "price_spread": 0.0097,
     "borrowing_fee": 0,
     "amount_in_sell_units": true,
     "trade_amount_a": 1000,
-    "trade_amount_b": 17792.080646972656,
-    "investment_amount": 17792.080646972656,
-    "immediate_loss": -2.980000000001433,
+    "trade_amount_b": 17549.699999999997,
+    "investment_amount": 17549.699999999997,
+    "immediate_loss": -9.699999999999283,
     "forecast_closing_rates": [
-        15.934812922880964,
-        18.21509616180777,
-        20.170278778317304
+        12.338907180828667,
+        18.616660219779604,
+        22.8854037096551
     ],
     "distr_profit_factor": [
-        -0.10438732607744272,
-        0.023775494458940116,
-        0.1336661056417423
+        -0.29691634724076943,
+        0.06079649337479309,
+        0.30403389856550844
     ],
     "distr_profit": [
-        -1857.2677240916926,
-        423.01551483511406,
-        2378.198131344646
+        -5210.79281917133,
+        1066.9602197796062,
+        5335.703709655103
     ],
-    "RATE_OPENING": 17.789100646972656,
-    "EXPECTED_CLOSING_RATE": 18.21509616180777,
-    "expected_profit": 423.01551483511406,
-    "sample_max_possible_loss": -1857.2677240916926
+    "RATE_OPENING": 17.54,
+    "EXPECTED_CLOSING_RATE": 18.616660219779604,
+    "expected_profit": 1066.9602197796062,
+    "sample_max_possible_loss": -5210.79281917133
 }
