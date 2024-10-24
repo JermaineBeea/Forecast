@@ -25,7 +25,6 @@ currency_investment = 'ZAR'
 profit_currency = currency_investment
 spread = 0.027
 borrowing_fee = 0
-investment_amount = 1000
 
 # Period valid - ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
 # Interval valid - [1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo]
@@ -79,7 +78,7 @@ current_rate = exchangeRate(sell_unit, buy_unit)
 
 # 1. Forecast Calculation
 FORECAST_FUNCTION = forecastData
-size_forecast = len(data)*forecast_factor
+size_forecast = int(len(data)*forecast_factor)
 distr_forecast = FORECAST_FUNCTION(data, current_rate, size_forecast)
 min_forecast, forecast, max_forecast = distr_forecast
 
@@ -101,6 +100,10 @@ else:
 # Toggle to determine if trade amount is in sell units
 amount_in_sell_units = True
 trade_amount_a = 1000
+loss_threshold = 300
+profit_threshold = None
+
+# Further calculations
 trade_amount_b = trade_amount_a * (current_rate + spread)
 investment_amount = trade_amount_a
 
@@ -115,6 +118,20 @@ if amount_in_sell_units:
 else:
     trade_amount_a = investment_amount * rate_inv_unit_a * rate_unit_a_sell
     trade_amount_b = trade_amount_a * (current_rate + spread)
+
+# Loss and profit threshold
+rate_loss_threshold = (
+    current_rate * (investment_amount/(-loss_threshold + investment_amount)) - spread
+    if action == 'sell' else
+    (current_rate + spread) * (-loss_threshold/investment_amount + 1)
+    if action == 'buy' else None
+)
+rate_profit_threshold = (
+    current_rate * (investment_amount/(profit_threshold + investment_amount)) - spread
+    if action == 'sell' else
+    (current_rate + spread) * (profit_threshold/investment_amount + 1)
+    if action == 'buy' else None
+) if profit_threshold else profit_threshold
 
 
 # 3. Profit Calculation
@@ -159,6 +176,10 @@ output_variables.update({
     'rate_opening'.upper(): current_rate,
     'expected_closing_rate'.upper(): forecast,
     'expected_profit': distr_profit[1],
+    'loss_threshold': loss_threshold,
+    'profit_threshold': profit_threshold,
+    f'rate_loss_threshold ({"<" if action == "sell" else ">" if action == "buy" else "Na"})': rate_loss_threshold,
+    f'rate_profit_threshold ({"<" if action == "sell" else ">" if action == "buy" else "Na"})': rate_profit_threshold,
     'sample_max_possible_loss': max_possible_loss
 }
 )
