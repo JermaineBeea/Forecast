@@ -6,7 +6,7 @@ import pickle
 import pandas as pd
 import numpy as np
 from Modules.Forecast import forecastData
-from Modules.Forex import get_conversion_rate, exchangeRate
+from Modules.Forex import hist_forex, forexRate
 from Modules.ReadWrite import write_output_to_file
 
 
@@ -23,7 +23,6 @@ sell_unit = 'EUR'
 buy_unit = 'GBP'
 currency_investment = 'ZAR'
 profit_currency = currency_investment
-spread = 0.00013
 borrowing_fee = 0
 
 # Period valid - ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
@@ -57,7 +56,7 @@ write_file = f'{trade_folder_path}{sell_unit}_{buy_unit}'
 os.makedirs(os.path.dirname(trade_folder_path), exist_ok=True) if os.path.dirname(trade_folder_path) else None
 
 if fetch_external_data:
-    raw_data = get_conversion_rate(sell_unit, buy_unit, **param_period).dropna()
+    raw_data = hist_forex(sell_unit, buy_unit, **param_period).dropna()
 else:
     local_data_path = external_file_name
     raw_data = pd.read_csv(local_data_path)
@@ -73,26 +72,26 @@ data = raw_data['Close'].to_list()
 
 ###____TRADE SECTION____###
 
-# current_rate = data[-1]
-current_rate = exchangeRate(sell_unit, buy_unit)
+# Current rate and spread
+current_sell_rate, current_buy_rate, spread = forexRate(sell_unit, buy_unit)
 
 # 1. Forecast Calculation
 FORECAST_FUNCTION = forecastData
 size_forecast = int(len(data)*forecast_factor)
-distr_forecast = FORECAST_FUNCTION(data, current_rate, size_forecast)
+distr_forecast = FORECAST_FUNCTION(data, current_sell_rate, size_forecast)
 min_forecast, forecast, max_forecast = distr_forecast
 
-print(f'SIZE FORECAST {size_forecast}\nCURRENT RATE {current_rate}\nFORECAST IS {forecast}\n')
+print(f'SIZE FORECAST {size_forecast}\nCURRENT RATE {current_sell_rate}\nFORECAST IS {forecast}\n')
 
 # 2. Trade Logic
-if forecast < current_rate - spread:
+if forecast < current_sell_rate - spread:
     action = 'sell'
     unit_a = sell_unit
-    distr_profit_factor = [current_rate / (n + spread) - (1 + borrowing_fee) for n in distr_forecast]
-elif forecast > current_rate + spread:
+    distr_profit_factor = [current_sell_rate / (n + spread) - (1 + borrowing_fee) for n in distr_forecast]
+elif forecast > current_sell_rate + spread:
     action = 'buy'
     unit_a = buy_unit
-    distr_profit_factor = [n / (current_rate + spread) - 1 for n in distr_forecast]
+    distr_profit_factor = [n / (current_sell_rate + spread) - 1 for n in distr_forecast]
 else:
     print('NO TRADE')
     exit()
@@ -106,39 +105,39 @@ loss_threshold = 200
 profit_threshold = 100
 
 # Further calculations
-trade_amount_b = trade_amount_a * (current_rate + spread)
+trade_amount_b = trade_amount_a * (current_sell_rate + spread)
 investment_amount = trade_amount_a
 
 rate_inv_unit_a = (
     1 if currency_investment == unit_a else 
-    get_conversion_rate(currency_investment, unit_a)['Close'].iloc[-1]
-    )
-rate_unit_a_sell = 1 if action == 'sell' else 1 / (current_rate + spread)
+    forexRate(currency_investment, unit_a)
+    )[0]
+rate_unit_a_sell = 1 if action == 'sell' else 1 / (current_sell_rate + spread)
 
 if amount_in_sell_units:
     investment_amount = trade_amount_a / (rate_inv_unit_a * rate_unit_a_sell)
 else:
     trade_amount_a = investment_amount * rate_inv_unit_a * rate_unit_a_sell
-    trade_amount_b = trade_amount_a * (current_rate + spread)
+    trade_amount_b = trade_amount_a * (current_sell_rate + spread)
 
 # Loss and profit threshold
 rate_loss_threshold = (
-    current_rate * (investment_amount/(-loss_threshold + investment_amount * (1 + borrowing_fee))) - spread
+    current_sell_rate * (investment_amount/(-loss_threshold + investment_amount * (1 + borrowing_fee))) - spread
     if action == 'sell' else
-    (current_rate + spread) * (-loss_threshold/investment_amount + 1)
+    (current_sell_rate + spread) * (-loss_threshold/investment_amount + 1)
     if action == 'buy' else None
 )
 rate_profit_threshold = (
-    current_rate * (investment_amount/(profit_threshold + investment_amount * (1 + borrowing_fee))) - spread
+    current_sell_rate * (investment_amount/(profit_threshold + investment_amount * (1 + borrowing_fee))) - spread
     if action == 'sell' else
-    (current_rate + spread) * (profit_threshold/investment_amount + 1)
+    (current_sell_rate + spread) * (profit_threshold/investment_amount + 1)
     if action == 'buy' else None
 ) if profit_threshold else profit_threshold
 
 
 # 3. Profit Calculation
-investment_rate_a = exchangeRate(currency_investment, unit_a)
-immediate_loss = investment_amount * (current_rate / (current_rate + spread) - 1)
+investment_rate_a = forexRate(currency_investment, unit_a)[0]
+immediate_loss = investment_amount * (current_sell_rate / (current_sell_rate + spread) - 1)
 
 distr_profit = [
     investment_amount * profit_factor
@@ -175,7 +174,7 @@ output_variables.update({
     'forecast_closing_rates': distr_forecast,
     'distr_profit_factor': distr_profit_factor,
     'distr_profit': distr_profit,
-    'rate_opening'.upper(): current_rate,
+    'rate_opening'.upper(): current_sell_rate,
     'expected_closing_rate'.upper(): forecast,
     'expected_profit': distr_profit[1],
     'loss_threshold': loss_threshold,

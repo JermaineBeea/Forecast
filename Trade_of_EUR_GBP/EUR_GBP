@@ -1,0 +1,43 @@
+{
+    "rate_given": "\"EURGBP\"",
+    "time_of_trade": "'2024-10-24 15:52:42'",
+    "trade_action": "\"buy\"",
+    "currency_investment": "\"ZAR\"",
+    "Forecast_Function": "\"forecastData\"",
+    "start_date": "'None'",
+    "end_date": "'None'",
+    "period": "'1mo'",
+    "interval": "'2m'",
+    "data_size": 15627,
+    "forecast_factor": 0.3333333333333333,
+    "forecast_size": 5209,
+    "price_spread": 9.999999999998899e-05,
+    "borrowing_fee": 0,
+    "amount_in_sell_units": true,
+    "trade_amount_a": 1000,
+    "trade_amount_b": 832.39,
+    "investment_amount": 19148.608235564756,
+    "immediate_loss": -2.3004370830451695,
+    "forecast_closing_rates": [
+        0.6234961505411658,
+        0.8334065856582689,
+        1.003852498002769
+    ],
+    "distr_profit_factor": [
+        -0.2509567023376472,
+        0.0012212852848652034,
+        0.2059881762188025
+    ],
+    "distr_profit": [
+        -4805.4715771528445,
+        23.385913463743883,
+        3944.3868875723256
+    ],
+    "RATE_OPENING": 0.83229,
+    "EXPECTED_CLOSING_RATE": 0.8334065856582689,
+    "expected_profit": 23.385913463743883,
+    "loss_threshold": 200,
+    "profit_threshold": 100,
+    "rate_loss_threshold (>)": 0.823696,
+    "rate_profit_threshold (<)": 0.836737
+}

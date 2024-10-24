@@ -1,8 +1,5 @@
-import os
 import numpy as np
-import pandas as pd
 from Modules.DataModification import DataMod
-from Modules.Forex import exchangeRate
 
 def forecastData(data, from_value=None, size_forecast=None, use_relative_frequency=False, **kwargs):
     """
