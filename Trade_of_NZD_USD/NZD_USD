@@ -1,0 +1,40 @@
+{
+    "rate_given": "\"NZDUSD\"",
+    "time_of_trade": "'2024-10-24 07:58:05'",
+    "trade_action": "\"sell\"",
+    "currency_investment": "\"ZAR\"",
+    "Forecast_Function": "\"forecastData\"",
+    "start_date": "'None'",
+    "end_date": "'None'",
+    "period": "'5d'",
+    "interval": "'1m'",
+    "data_size": 3023,
+    "forecast_factor": 0.3333333333333333,
+    "forecast_size": 1007.6666666666666,
+    "price_spread": 0.00023,
+    "borrowing_fee": 0,
+    "amount_in_sell_units": true,
+    "trade_amount_a": 1000,
+    "trade_amount_b": null,
+    "investment_amount": 10699.764484806228,
+    "immediate_loss": -4.093185355862124,
+    "forecast_closing_rates": [
+        0.5491634319178024,
+        0.5995803775026782,
+        0.6304986276456375
+    ],
+    "distr_profit_factor": [
+        0.09393371868690048,
+        0.0019833309691552614,
+        -0.04713378518525069
+    ],
+    "distr_profit": [
+        1005.0686671318769,
+        21.221174265383784,
+        -504.32040075963124
+    ],
+    "RATE_OPENING": 0.601,
+    "EXPECTED_CLOSING_RATE": 0.5995803775026782,
+    "expected_profit": 21.221174265383784,
+    "sample_max_possible_loss": -504.32040075963124
+}

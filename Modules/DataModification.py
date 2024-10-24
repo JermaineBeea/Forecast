@@ -31,7 +31,6 @@ class DataMod:
     #TODO fix binData
     def binData(self, bin_ranges, data):
         ...
-        
 
     def binCounts(self, bin_ranges, data, rnd=None):
         """
@@ -43,43 +42,48 @@ class DataMod:
         Args:
             bin_ranges (list of float): The boundaries for the bins. 
                 The length of this list should be at least 2.
-            data (list or np.ndarray): The data to be binned.
+            data (list): The data to be binned. Expected as a list of floats or ints.
             rnd (int, optional): If specified, the number of decimal places to round the results. 
                 Defaults to None.
 
         Returns:
-            tuple: A tuple containing three lists:
+            tuple: A tuple containing four lists:
                 - bins_count (list of int): The count of data points in each bin.
                 - bins_abs_factor (list of float): The absolute frequency (proportion) of each bin.
                 - bins_rel_factor (list of float): The relative frequency (proportion) of each bin, 
                 considering only the data points within the overall range of the data.
+                - bins_numbers (list of lists): The actual data points in each bin.
         """
-        # Ensure data is a NumPy array for easier manipulation
-        data = np.array(data) if not isinstance(data, np.ndarray) else data
+        
+        # Ensure data is a list of floats or integers
+        data = list(data)
         
         # Number of bins is one less than the number of ranges
         size_bin_ranges = len(bin_ranges) - 1  
         size_data = len(data)  # Total number of data points
-        # Count of data points that fall within the range of min and max data values
-        size_data_in_range = int(sum((data >= data.min()) & (data <= data.max())))
+        size_data_in_range = sum(1 for d in data if bin_ranges[0] <= d <= bin_ranges[-1])
 
-        # Initialize lists to hold the statistics for each bin
+        # Initialize lists for storing statistics
         bins_count = [0] * size_bin_ranges
         bins_abs_factor = [0] * size_bin_ranges
         bins_rel_factor = [0] * size_bin_ranges
+        bins_numbers = [[] for _ in range(size_bin_ranges)]  # List of lists to store actual numbers
 
-        # Iterate over each bin range to count the data points
+        # Iterate over each bin range to count the data points and store the actual numbers
         for indx, (range_start, range_end) in enumerate(zip(bin_ranges[:-1], bin_ranges[1:])):
-            count = 0  # Initialize count for the current bin
-            # Check each number in data to see if it falls within the current bin range
-            for num in data:
-                if range_start <= num <= range_end:
-                    count += 1  # Increment count if num is within the bin range
-                    bins_count[indx] = count  # Update bin count
-                    bins_abs_factor[indx] = count / size_data  # Calculate absolute frequency
-                    bins_rel_factor[indx] = count / size_data_in_range  # Calculate relative frequency
+            # Filter data that falls within the current bin
+            bin_data = [float(d) for d in data if range_start <= d <= range_end]
+            bins_count[indx] = len(bin_data)  # Count the number of data points
+            bins_numbers[indx] = bin_data  # Store the actual data points
+            bins_abs_factor[indx] = float(bins_count[indx]) / size_data  # Absolute frequency
+            bins_rel_factor[indx] = float(bins_count[indx]) / size_data_in_range if size_data_in_range > 0 else 0  # Relative frequency
 
-        return bins_count, bins_abs_factor, bins_rel_factor  # Return the computed statistics
+        # If rounding is specified, round the results
+        if rnd is not None:
+            bins_abs_factor = [round(x, rnd) for x in bins_abs_factor]
+            bins_rel_factor = [round(x, rnd) for x in bins_rel_factor]
+
+        return bins_numbers, bins_count, bins_abs_factor, bins_rel_factor
 
 
     def linearise(self, data_arg=None, data_type=float):
@@ -238,13 +242,13 @@ class DataMod:
             central_tendency = self.deviation(data_1, data, abs_diff=abs_diff)[0][0]
 
         central_tendency = float(central_tendency) 
-        mean_abs_deviation = np.std(data) if std_dev else self.deviation([central_tendency], data, std_dev=std_dev)[1]
+        mean_abs_deviation = float(np.std(data) if std_dev else self.deviation([central_tendency], data, std_dev=std_dev)[1])
 
         distribution = sorted([central_tendency - mean_abs_deviation, central_tendency, central_tendency + mean_abs_deviation])
 
-        absolute_probabilities, relative_probabilities = self.binCounts(distribution, data)[1:]
+        distr_values,  distr_counts,  absolute_probabilities, relative_probabilities = self.binCounts(distribution, data)
 
-        return mean_abs_deviation, distribution, absolute_probabilities, relative_probabilities
+        return distr_values, mean_abs_deviation, distribution, absolute_probabilities, relative_probabilities
 
 
     def expectation(self, quantity_events, possible_events, probabilities):
@@ -289,12 +293,10 @@ if __name__ == '__main__':
 
     data_mod = DataMod()
 
-    data = [1, 1, 1, 2, 2, 2, 3, 3]
-    bins = [1, 2, 3]
+    # distr = [1.0943752502002002, 1.875, 2.6556247497997996]
+    data =  [1, 1, 1, 2, 2, 2, 3, 3]
+    distr = data_mod.distribution(data)
 
-    bin_counts = data_mod.binCounts(bins, data)
-
-    print(data)
-    print(bin_counts)
+    print(distr)
 
 

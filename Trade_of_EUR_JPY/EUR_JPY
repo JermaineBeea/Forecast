@@ -1,0 +1,40 @@
+{
+    "rate_given": "\"EURJPY\"",
+    "time_of_trade": "'2024-10-24 08:00:10'",
+    "trade_action": "\"buy\"",
+    "currency_investment": "\"ZAR\"",
+    "Forecast_Function": "\"forecastData\"",
+    "start_date": "'None'",
+    "end_date": "'None'",
+    "period": "'5d'",
+    "interval": "'1m'",
+    "data_size": 6067,
+    "forecast_factor": 0.3333333333333333,
+    "forecast_size": 2022.3333333333333,
+    "price_spread": 0.027,
+    "borrowing_fee": 0,
+    "amount_in_sell_units": true,
+    "trade_amount_a": 1000,
+    "trade_amount_b": 164626.99999999997,
+    "investment_amount": 19234.373140145664,
+    "immediate_loss": -3.1545741268672574,
+    "forecast_closing_rates": [
+        147.94431137623246,
+        165.0507748429762,
+        182.57354604895488
+    ],
+    "distr_profit_factor": [
+        -0.10133628520089366,
+        0.0025741515242105883,
+        0.1090133820634216
+    ],
+    "distr_profit": [
+        -1949.1399221902095,
+        49.51219093594116,
+        2096.8040678771135
+    ],
+    "RATE_OPENING": 164.6,
+    "EXPECTED_CLOSING_RATE": 165.0507748429762,
+    "expected_profit": 49.51219093594116,
+    "sample_max_possible_loss": -1949.1399221902095
+}

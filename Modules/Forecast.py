@@ -27,16 +27,14 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
     # Get the first oder difference of data
     diff = np.diff(data, n = 1)
     # distribution ouput ->  mean_central_dev, distribution, absolute_probabilities, relative_probabilities
-    distr, absolute_prob, relative_prob= data_mod.distribution(diff)[1:]
-    probabilities = relative_prob if rel_prob else absolute_prob
+    distr_values, hold_1, hold_2, absolute_prob, relative_prob= data_mod.distribution(diff)
+    probability = relative_prob if rel_prob else absolute_prob
 
-    mean_lower_bound = np.mean((distr[0], distr[1]))
-    mean_upper_bound = np.mean((distr[1], distr[2]))
+    mean_lower_bound = np.mean(distr_values[0])
+    mean_upper_bound = np.mean(distr_values[1])
 
-    prob_lower_bound = probabilities[0]
-    prob_upper_bound =  probabilities[1]
-
-    print(f'TEST PROBABILITY low:{prob_lower_bound}\n high: {prob_upper_bound}')
+    prob_lower_bound = probability[0]
+    prob_upper_bound =  probability[1]
 
     # Compute diff expectation 
     diff_expectation = data_mod.expectation(size_forecast, [mean_lower_bound, mean_upper_bound], [prob_lower_bound, prob_upper_bound])
