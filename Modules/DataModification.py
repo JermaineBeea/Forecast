@@ -139,7 +139,7 @@ class DataMod:
             log_2 = f'{"--RETURN ATTRIBUTES--".upper()}\ntype: {type(linearised_data)}\nshape: {np.shape(linearised_data)}\nsize: {len(linearised_data)}'
             print(f'LOG OF FUNCTION: {function_name}\n{log_1}{log_2}\n')
 
-        return list(linearised_data)
+        return linearised_data.tolist()
 
 
     def deviation(self, set_1, set_2, abs_diff=None):
@@ -197,7 +197,7 @@ class DataMod:
             central_tendency = set_1[0]
 
 
-        return central_tendency, float(mean_abs_deviation), list(element_wise_deviations)
+        return float(central_tendency), float(mean_abs_deviation), element_wise_deviations.tolist()
 
 
     def distribution(self, data_arg, tend_func=None, linear=True, std_dev=None, abs_diff=None):
@@ -290,15 +290,22 @@ class TestDataMod(unittest.TestCase):
 # Main Execution: Unit test and function calls
 if __name__ == '__main__':
 
+    from collections import Counter
+
     if RUN_UNIT_TESTING:
         unittest.main()
 
     data_mod = DataMod()
 
     # distr = [1.0943752502002002, 1.875, 2.6556247497997996]
-    data =  [1, 1, 1, 2, 2, 2, 3, 3]
-    distr = data_mod.distribution(data)
+    data = [1, 2, 3, 4, 5, 3, 4, 2, 1, 2, 3, 4, 3, 2, 1]
+    diff = np.diff(data, n = 1)
+    diff = [-2.0, -1.7692307692307692, -1.5384615384615383, -1.3076923076923077, -1.0769230769230769, -0.846153846153846, -0.6153846153846154, -0.3846153846153846, -0.15384615384615374, 0.0769230769230771, 0.30769230769230793, 0.5384615384615388, 0.7692307692307692, 1.0]
+    linear_diff = data_mod.linearise(diff, int)
 
-    print(distr)
+    count_linear = Counter(linear_diff)
+    print(count_linear.value)
 
+    # result = data_mod.deviation(data, [linear_diff[0]])
 
+    # print(result)

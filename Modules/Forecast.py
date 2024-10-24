@@ -4,7 +4,6 @@ import pandas as pd
 from Modules.DataModification import DataMod
 from Modules.Forex import exchangeRate
 
-
 def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **kwargs):
     """_summary_
 
@@ -47,7 +46,11 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
 
 
 if __name__ == '__main__':
-    ...
+    
+    data = [1, 2, 3, 4, 5, 3, 4, 2, 1, 2, 3, 4, 3, 2, 1]
+    diff = np.diff(data, n = 1)
+
+    print(diff)
 
 
 
