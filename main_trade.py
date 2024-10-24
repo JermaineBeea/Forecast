@@ -59,7 +59,7 @@ os.makedirs(os.path.dirname(trade_folder_path), exist_ok=True) if os.path.dirnam
 if fetch_external_data:
     raw_data = get_conversion_rate(sell_unit, buy_unit, **param_period).dropna()
 else:
-    local_data_path = r'/path/to/local/file.csv'
+    local_data_path = external_file_name
     raw_data = pd.read_csv(local_data_path)
 
 # Save external data
@@ -100,8 +100,8 @@ else:
 # Toggle to determine if trade amount is in sell units
 amount_in_sell_units = True
 trade_amount_a = 1000
-loss_threshold = 300
-profit_threshold = None
+loss_threshold = 200
+profit_threshold = 100
 
 # Further calculations
 trade_amount_b = trade_amount_a * (current_rate + spread)
@@ -179,7 +179,7 @@ output_variables.update({
     'loss_threshold': loss_threshold,
     'profit_threshold': profit_threshold,
     f'rate_loss_threshold ({"<" if action == "sell" else ">" if action == "buy" else "Na"})': rate_loss_threshold,
-    f'rate_profit_threshold ({"<" if action == "sell" else ">" if action == "buy" else "Na"})': rate_profit_threshold,
+    f'rate_profit_threshold ({">" if action == "sell" else "<" if action == "buy" else "Na"})': rate_profit_threshold,
     'sample_max_possible_loss': max_possible_loss
 }
 )
