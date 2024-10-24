@@ -27,7 +27,7 @@ def forecastData(data, from_value=None, size_forecast=None, rel_prob = True, **k
     # Get the first oder difference of data
     diff = np.diff(data, n = 1)
     # distribution ouput ->  mean_central_dev, distribution, absolute_probabilities, relative_probabilities
-    distr_values, hold_1, hold_2, absolute_prob, relative_prob= data_mod.distribution(diff)
+    distr_values, placeholder_1, placeholder_2, absolute_prob, relative_prob= data_mod.distribution(diff)
     probability = relative_prob if rel_prob else absolute_prob
 
     mean_lower_bound = np.mean(distr_values[0])

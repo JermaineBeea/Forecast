@@ -28,9 +28,11 @@ class DataMod:
         self.STANDARD_DEVIATION = kwargs.get('std_dev', True)
         self.ABSOLUTE_DIFFERENCE = kwargs.get('abs_diff', True)
 
+
     #TODO fix binData
     def binData(self, bin_ranges, data):
         ...
+
 
     def binCounts(self, bin_ranges, data, rnd=None):
         """
@@ -140,7 +142,7 @@ class DataMod:
         return list(linearised_data)
 
 
-    def deviation(self, set_1, set_2, std_dev=None, abs_diff=None):
+    def deviation(self, set_1, set_2, abs_diff=None):
         """
         Purpose
         --------
