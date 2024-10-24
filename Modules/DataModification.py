@@ -51,8 +51,8 @@ class DataMod:
         Returns:
             tuple: A tuple containing four lists:
                 - bins_count (list of int): The count of data points in each bin.
-                - bins_abs_factor (list of float): The absolute frequency (proportion) of each bin.
-                - bins_rel_factor (list of float): The relative frequency (proportion) of each bin, 
+                - absolute_frequency (list of float): The absolute frequency of each bin.
+                - relative_frequency (list of float): The relative frequency of each bin, 
                 considering only the data points within the overall range of the data.
                 - bins_numbers (list of lists): The actual data points in each bin.
         """
@@ -67,8 +67,8 @@ class DataMod:
 
         # Initialize lists for storing statistics
         bins_count = [0] * size_bin_ranges
-        bins_abs_factor = [0] * size_bin_ranges
-        bins_rel_factor = [0] * size_bin_ranges
+        absolute_frequency = [0] * size_bin_ranges
+        relative_frequency = [0] * size_bin_ranges
         bins_numbers = [[] for _ in range(size_bin_ranges)]  # List of lists to store actual numbers
 
         # Iterate over each bin range to count the data points and store the actual numbers
@@ -77,15 +77,15 @@ class DataMod:
             bin_data = [float(d) for d in data if range_start <= d <= range_end]
             bins_count[indx] = len(bin_data)  # Count the number of data points
             bins_numbers[indx] = bin_data  # Store the actual data points
-            bins_abs_factor[indx] = float(bins_count[indx]) / size_data  # Absolute frequency
-            bins_rel_factor[indx] = float(bins_count[indx]) / size_data_in_range if size_data_in_range > 0 else 0  # Relative frequency
+            absolute_frequency[indx] = float(bins_count[indx]) / size_data  # Absolute frequency
+            relative_frequency[indx] = float(bins_count[indx]) / size_data_in_range if size_data_in_range > 0 else 0  # Relative frequency
 
         # If rounding is specified, round the results
         if rnd is not None:
-            bins_abs_factor = [round(x, rnd) for x in bins_abs_factor]
-            bins_rel_factor = [round(x, rnd) for x in bins_rel_factor]
+            absolute_frequency = [round(x, rnd) for x in absolute_frequency]
+            relative_frequency = [round(x, rnd) for x in relative_frequency]
 
-        return bins_numbers, bins_count, bins_abs_factor, bins_rel_factor
+        return bins_numbers, bins_count, absolute_frequency, relative_frequency
 
 
     def linearise(self, data_arg=None, data_type=float):
