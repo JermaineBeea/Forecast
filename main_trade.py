@@ -20,10 +20,10 @@ pd.set_option('display.max_seq_items', None)
 # 3. Constants & Trading settings
 current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 sell_unit = 'EUR'
-buy_unit = 'JPY'
+buy_unit = 'GBP'
 currency_investment = 'ZAR'
 profit_currency = currency_investment
-spread = 0.027
+spread = 0.00013
 borrowing_fee = 0
 
 # Period valid - ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
@@ -32,8 +32,8 @@ borrowing_fee = 0
 param_period = {
     'start_date': None,
     'end_date': None,
-    'period': '5d',
-    'interval': '1m'
+    'period': '1mo',
+    'interval': '2m'
 }
 forecast_factor = 1/3
 
@@ -94,6 +94,8 @@ elif forecast > current_rate + spread:
     unit_a = buy_unit
     distr_profit_factor = [n / (current_rate + spread) - 1 for n in distr_forecast]
 else:
+    print('NO TRADE')
+    exit()
     action = 'hold'
     distr_profit_factor = []
 
@@ -121,13 +123,13 @@ else:
 
 # Loss and profit threshold
 rate_loss_threshold = (
-    current_rate * (investment_amount/(-loss_threshold + investment_amount)) - spread
+    current_rate * (investment_amount/(-loss_threshold + investment_amount * (1 + borrowing_fee))) - spread
     if action == 'sell' else
     (current_rate + spread) * (-loss_threshold/investment_amount + 1)
     if action == 'buy' else None
 )
 rate_profit_threshold = (
-    current_rate * (investment_amount/(profit_threshold + investment_amount)) - spread
+    current_rate * (investment_amount/(profit_threshold + investment_amount * (1 + borrowing_fee))) - spread
     if action == 'sell' else
     (current_rate + spread) * (profit_threshold/investment_amount + 1)
     if action == 'buy' else None
@@ -180,7 +182,6 @@ output_variables.update({
     'profit_threshold': profit_threshold,
     f'rate_loss_threshold ({"<" if action == "sell" else ">" if action == "buy" else "Na"})': rate_loss_threshold,
     f'rate_profit_threshold ({">" if action == "sell" else "<" if action == "buy" else "Na"})': rate_profit_threshold,
-    'sample_max_possible_loss': max_possible_loss
 }
 )
 

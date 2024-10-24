@@ -1,0 +1,43 @@
+{
+    "rate_given": "\"EURNZD\"",
+    "time_of_trade": "'2024-10-24 14:29:56'",
+    "trade_action": "\"sell\"",
+    "currency_investment": "\"ZAR\"",
+    "Forecast_Function": "\"forecastData\"",
+    "start_date": "'None'",
+    "end_date": "'None'",
+    "period": "'1d'",
+    "interval": "'1m'",
+    "data_size": 807,
+    "forecast_factor": 0.3333333333333333,
+    "forecast_size": 269,
+    "price_spread": 0.00065,
+    "borrowing_fee": 0,
+    "amount_in_sell_units": true,
+    "trade_amount_a": 1000,
+    "trade_amount_b": null,
+    "investment_amount": 19267.82296616374,
+    "immediate_loss": -6.994155713293031,
+    "forecast_closing_rates": [
+        1.766128585492411,
+        1.7893057390004767,
+        1.81117821712612
+    ],
+    "distr_profit_factor": [
+        0.013143364255299161,
+        2.4727426806592234e-05,
+        -0.012047619592073344
+    ],
+    "distr_profit": [
+        253.24401565090878,
+        0.47644368211819077,
+        -232.13140146375503
+    ],
+    "RATE_OPENING": 1.79,
+    "EXPECTED_CLOSING_RATE": 1.7893057390004767,
+    "expected_profit": 0.47644368211819077,
+    "loss_threshold": 200,
+    "profit_threshold": 100,
+    "rate_loss_threshold (<)": 1.8081250851597102,
+    "rate_profit_threshold (>)": 1.7801078667817896
+}
